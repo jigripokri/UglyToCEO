@@ -1,10 +1,20 @@
 import { useState } from "react";
 import { Header } from "@/components/Header";
 import { UploadZone } from "@/components/UploadZone";
-import { transformImage, type ModelType, BACKGROUND_COLORS, type BackgroundColor } from "@/lib/api";
+import { 
+  transformImage, 
+  type ModelType, 
+  type Gender,
+  type ClothingSelection,
+  BACKGROUND_COLORS, 
+  type BackgroundColor,
+  MEN_CLOTHING,
+  WOMEN_CLOTHING,
+  DEFAULT_CLOTHING,
+} from "@/lib/api";
 import { Button } from "@/components/ui/button";
 import { motion, AnimatePresence } from "framer-motion";
-import { Loader2, Download, RotateCcw, Zap, Sparkles } from "lucide-react";
+import { Loader2, Download, RotateCcw, Zap, Sparkles, ChevronDown, ChevronUp, RotateCcw as ResetIcon } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import confetti from "canvas-confetti";
 
@@ -15,7 +25,46 @@ export default function Home() {
   const [selectedModel, setSelectedModel] = useState<ModelType>("flash");
   const [selectedColor, setSelectedColor] = useState<BackgroundColor>("#562226");
   const [pendingFile, setPendingFile] = useState<File | null>(null);
+  const [outfitExpanded, setOutfitExpanded] = useState(false);
+  
+  // Clothing state
+  const [gender, setGender] = useState<Gender>(DEFAULT_CLOTHING.gender);
+  const [clothingId, setClothingId] = useState(DEFAULT_CLOTHING.clothingId);
+  const [clothingColor, setClothingColor] = useState(DEFAULT_CLOTHING.clothingColor);
+  
   const { toast } = useToast();
+  
+  // Get current clothing options based on gender
+  const clothingOptions = gender === "men" ? MEN_CLOTHING : WOMEN_CLOTHING;
+  const selectedClothing = clothingOptions.find(c => c.id === clothingId) || clothingOptions[0];
+  
+  // Check if current selection is default
+  const isDefaultSelection = 
+    gender === DEFAULT_CLOTHING.gender && 
+    clothingId === DEFAULT_CLOTHING.clothingId && 
+    clothingColor === DEFAULT_CLOTHING.clothingColor;
+
+  const handleGenderChange = (newGender: Gender) => {
+    setGender(newGender);
+    // Reset to first clothing option for new gender
+    const newOptions = newGender === "men" ? MEN_CLOTHING : WOMEN_CLOTHING;
+    setClothingId(newOptions[0].id);
+    setClothingColor(newOptions[0].colors[0].hex);
+  };
+
+  const handleClothingSelect = (id: string) => {
+    setClothingId(id);
+    const clothing = clothingOptions.find(c => c.id === id);
+    if (clothing) {
+      setClothingColor(clothing.colors[0].hex);
+    }
+  };
+
+  const handleResetToDefault = () => {
+    setGender(DEFAULT_CLOTHING.gender);
+    setClothingId(DEFAULT_CLOTHING.clothingId);
+    setClothingColor(DEFAULT_CLOTHING.clothingColor);
+  };
 
   const handleFileSelect = async (file: File) => {
     const objectUrl = URL.createObjectURL(file);
@@ -24,8 +73,14 @@ export default function Home() {
     setProcessedImage(null);
     setIsProcessing(true);
     
+    const clothing: ClothingSelection = {
+      gender,
+      clothingId,
+      clothingColor,
+    };
+    
     try {
-      const result = await transformImage(file, selectedModel, selectedColor);
+      const result = await transformImage(file, selectedModel, selectedColor, clothing);
       setProcessedImage(result);
       triggerConfetti();
     } catch (error) {
@@ -115,7 +170,7 @@ export default function Home() {
         </div>
 
         {/* Background Color Picker */}
-        <div className="flex flex-col items-center mb-8">
+        <div className="flex flex-col items-center mb-6">
           <p className="text-xs uppercase tracking-widest text-muted-foreground mb-3">Background</p>
           <div className="flex items-center gap-3">
             {BACKGROUND_COLORS.map((color) => (
@@ -138,6 +193,148 @@ export default function Home() {
               />
             ))}
           </div>
+        </div>
+
+        {/* Collapsible Outfit Customization Panel */}
+        <div className="flex flex-col items-center mb-8">
+          <button
+            type="button"
+            data-testid="toggle-outfit-panel"
+            onClick={() => setOutfitExpanded(!outfitExpanded)}
+            disabled={isProcessing}
+            className={`flex items-center gap-2 px-4 py-2 text-sm text-muted-foreground hover:text-foreground transition-colors ${
+              isProcessing ? "opacity-50 cursor-not-allowed" : "cursor-pointer"
+            }`}
+          >
+            {outfitExpanded ? (
+              <ChevronUp className="w-4 h-4" />
+            ) : (
+              <ChevronDown className="w-4 h-4" />
+            )}
+            <span className="uppercase tracking-widest text-xs">
+              Customize Outfit
+              {!outfitExpanded && !isDefaultSelection && (
+                <span className="ml-2 text-foreground/70">• Customized</span>
+              )}
+            </span>
+          </button>
+          
+          <AnimatePresence>
+            {outfitExpanded && (
+              <motion.div
+                initial={{ height: 0, opacity: 0 }}
+                animate={{ height: "auto", opacity: 1 }}
+                exit={{ height: 0, opacity: 0 }}
+                transition={{ duration: 0.2 }}
+                className="overflow-hidden w-full max-w-2xl"
+              >
+                <div className="bg-gray-50 border border-gray-200 rounded-lg p-6 mt-3 space-y-6">
+                  {/* Gender Toggle */}
+                  <div className="flex items-center justify-center gap-4">
+                    <div className="inline-flex items-center bg-white border border-gray-300 rounded-full p-1">
+                      <button
+                        type="button"
+                        data-testid="gender-men"
+                        onClick={() => handleGenderChange("men")}
+                        disabled={isProcessing}
+                        className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-all duration-200 ${
+                          gender === "men" 
+                            ? "bg-foreground text-background" 
+                            : "text-muted-foreground hover:text-foreground"
+                        } ${isProcessing ? "opacity-50 cursor-not-allowed" : "cursor-pointer"}`}
+                      >
+                        👔 Men
+                      </button>
+                      <button
+                        type="button"
+                        data-testid="gender-women"
+                        onClick={() => handleGenderChange("women")}
+                        disabled={isProcessing}
+                        className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-all duration-200 ${
+                          gender === "women" 
+                            ? "bg-foreground text-background" 
+                            : "text-muted-foreground hover:text-foreground"
+                        } ${isProcessing ? "opacity-50 cursor-not-allowed" : "cursor-pointer"}`}
+                      >
+                        👗 Women
+                      </button>
+                    </div>
+                    
+                    {!isDefaultSelection && (
+                      <button
+                        type="button"
+                        data-testid="reset-outfit"
+                        onClick={handleResetToDefault}
+                        disabled={isProcessing}
+                        className={`flex items-center gap-1 px-3 py-1.5 text-xs text-muted-foreground hover:text-foreground border border-gray-300 rounded-full transition-colors ${
+                          isProcessing ? "opacity-50 cursor-not-allowed" : "cursor-pointer"
+                        }`}
+                      >
+                        <ResetIcon className="w-3 h-3" />
+                        Reset
+                      </button>
+                    )}
+                  </div>
+
+                  {/* Clothing Cards */}
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                    {clothingOptions.map((clothing) => (
+                      <button
+                        key={clothing.id}
+                        type="button"
+                        data-testid={`clothing-${clothing.id}`}
+                        onClick={() => handleClothingSelect(clothing.id)}
+                        disabled={isProcessing}
+                        className={`group relative bg-white border-2 rounded-lg p-4 transition-all duration-200 ${
+                          clothingId === clothing.id 
+                            ? "border-foreground shadow-md" 
+                            : "border-gray-200 hover:border-gray-400"
+                        } ${isProcessing ? "opacity-50 cursor-not-allowed" : "cursor-pointer"}`}
+                      >
+                        <div className="text-center space-y-2">
+                          <span className="text-3xl block">{clothing.icon}</span>
+                          <span className="text-xs font-medium text-foreground block">{clothing.name}</span>
+                        </div>
+                        
+                        {/* Color swatches for selected clothing */}
+                        {clothingId === clothing.id && (
+                          <div className="flex justify-center gap-2 mt-3 pt-3 border-t border-gray-100">
+                            {clothing.colors.map((color) => (
+                              <button
+                                key={color.hex}
+                                type="button"
+                                data-testid={`clothing-color-${color.hex.replace('#', '')}`}
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  setClothingColor(color.hex);
+                                }}
+                                disabled={isProcessing}
+                                title={color.name}
+                                className={`w-5 h-5 rounded-full transition-all duration-200 ${
+                                  isProcessing ? "cursor-not-allowed" : "cursor-pointer hover:scale-110"
+                                }`}
+                                style={{
+                                  backgroundColor: color.hex,
+                                  boxShadow: clothingColor === color.hex 
+                                    ? `0 0 0 2px white, 0 0 0 3px ${color.hex}` 
+                                    : "0 1px 2px rgba(0,0,0,0.2)",
+                                }}
+                              />
+                            ))}
+                          </div>
+                        )}
+                      </button>
+                    ))}
+                  </div>
+                  
+                  {/* Current Selection Summary */}
+                  <div className="text-center text-xs text-muted-foreground">
+                    Selected: {selectedClothing.name} in {selectedClothing.colors.find(c => c.hex === clothingColor)?.name || "default"}
+                  </div>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
         </div>
 
         <main className="mt-4 pb-24">
