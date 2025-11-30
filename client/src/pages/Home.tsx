@@ -19,11 +19,6 @@ import { useToast } from "@/hooks/use-toast";
 import { useDropzone } from "react-dropzone";
 import confetti from "canvas-confetti";
 
-import beforeFemale from "@assets/before(1)_1764471091566.jpg";
-import afterFemale from "@assets/after (1)_1764471091567.png";
-import beforeMale from "@assets/before(2)_1764471091566.jpg";
-import afterMale from "@assets/after (2)_1764471091567.png";
-
 export default function Home() {
   const [originalImage, setOriginalImage] = useState<string | null>(null);
   const [processedImage, setProcessedImage] = useState<string | null>(null);
@@ -148,7 +143,7 @@ export default function Home() {
   return (
     <div className="min-h-screen w-full bg-background font-sans text-foreground">
       <div className="container mx-auto px-4 py-4 max-w-7xl">
-        <Header selectedModel={selectedModel} setSelectedModel={setSelectedModel} isProcessing={isProcessing} />
+        <Header selectedModel={selectedModel} setSelectedModel={setSelectedModel} isProcessing={isProcessing} gender={gender} />
 
         {/* Main two-column layout - 70/30 split */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 mt-4">
@@ -470,109 +465,7 @@ export default function Home() {
           </motion.div>
         )}
 
-        {/* Examples Section - Subdued */}
-        <section className="mt-16 py-8 -mx-4 px-4 bg-gray-50/40">
-          <div className="max-w-4xl mx-auto">
-            {/* Section Header - Muted */}
-            <div className="text-center mb-6">
-              <p className="text-xs uppercase tracking-widest text-muted-foreground/60 mb-1">
-                See The Difference
-              </p>
-              <h3 className="text-base font-medium text-foreground/70">
-                Real Transformations
-              </h3>
-            </div>
-
-            {/* Examples - Two columns on desktop, stacked on mobile */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-              {/* Example 1 - Female */}
-              <div className="flex items-center justify-center gap-3" data-testid="example-female">
-                {/* Before */}
-                <div className="flex-1 max-w-[140px]">
-                  <div className="relative rounded-xl overflow-hidden shadow-sm border border-gray-200/60">
-                    <img 
-                      src={beforeFemale} 
-                      alt="Before - casual photo" 
-                      className="w-full h-[180px] object-cover object-top"
-                    />
-                    <div className="absolute bottom-2 left-2">
-                      <span className="text-[9px] uppercase tracking-wider text-white/80 bg-black/40 px-1.5 py-0.5 rounded-full backdrop-blur-sm">
-                        Before
-                      </span>
-                    </div>
-                  </div>
-                </div>
-                
-                {/* Arrow */}
-                <div className="flex-shrink-0 text-muted-foreground/40">
-                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M5 12h14M12 5l7 7-7 7"/>
-                  </svg>
-                </div>
-                
-                {/* After */}
-                <div className="flex-1 max-w-[140px]">
-                  <div className="relative rounded-xl overflow-hidden shadow-sm border border-gray-200/60">
-                    <img 
-                      src={afterFemale} 
-                      alt="After - professional headshot" 
-                      className="w-full h-[180px] object-cover object-top"
-                    />
-                    <div className="absolute bottom-2 left-2">
-                      <span className="text-[9px] uppercase tracking-wider text-white/80 bg-black/40 px-1.5 py-0.5 rounded-full backdrop-blur-sm">
-                        After
-                      </span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Example 2 - Male */}
-              <div className="flex items-center justify-center gap-3" data-testid="example-male">
-                {/* Before */}
-                <div className="flex-1 max-w-[140px]">
-                  <div className="relative rounded-xl overflow-hidden shadow-sm border border-gray-200/60">
-                    <img 
-                      src={beforeMale} 
-                      alt="Before - casual photo" 
-                      className="w-full h-[180px] object-cover object-top"
-                    />
-                    <div className="absolute bottom-2 left-2">
-                      <span className="text-[9px] uppercase tracking-wider text-white/80 bg-black/40 px-1.5 py-0.5 rounded-full backdrop-blur-sm">
-                        Before
-                      </span>
-                    </div>
-                  </div>
-                </div>
-                
-                {/* Arrow */}
-                <div className="flex-shrink-0 text-muted-foreground/40">
-                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M5 12h14M12 5l7 7-7 7"/>
-                  </svg>
-                </div>
-                
-                {/* After */}
-                <div className="flex-1 max-w-[140px]">
-                  <div className="relative rounded-xl overflow-hidden shadow-sm border border-gray-200/60">
-                    <img 
-                      src={afterMale} 
-                      alt="After - professional headshot" 
-                      className="w-full h-[180px] object-cover object-top"
-                    />
-                    <div className="absolute bottom-2 left-2">
-                      <span className="text-[9px] uppercase tracking-wider text-white/80 bg-black/40 px-1.5 py-0.5 rounded-full backdrop-blur-sm">
-                        After
-                      </span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        <footer className="py-4 border-t border-border">
+        <footer className="py-4 border-t border-border mt-8">
           <div className="flex items-center justify-between text-xs text-muted-foreground/70">
             <div className="flex items-center gap-1.5">
               <span>Made with love at</span>
