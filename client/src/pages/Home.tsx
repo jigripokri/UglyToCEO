@@ -1,13 +1,14 @@
 import { useState } from "react";
 import { Header } from "@/components/Header";
 import { UploadZone } from "@/components/UploadZone";
+import { ComparisonView } from "@/components/ComparisonView";
 import { transformImage } from "@/lib/mock-service";
 import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
 import { motion, AnimatePresence } from "framer-motion";
-import { Loader2, Download, RefreshCw, Sparkles, Wand2 } from "lucide-react";
+import { Loader2, Download, RotateCcw, Sparkles, CheckCircle2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import confetti from "canvas-confetti";
+import bgMesh from "@assets/generated_images/bg_mesh.png";
 
 export default function Home() {
   const [originalImage, setOriginalImage] = useState<string | null>(null);
@@ -16,27 +17,18 @@ export default function Home() {
   const { toast } = useToast();
 
   const handleFileSelect = async (file: File) => {
-    // Create preview for original
     const objectUrl = URL.createObjectURL(file);
     setOriginalImage(objectUrl);
     setProcessedImage(null);
-    
-    // Start processing
     setIsProcessing(true);
     
     try {
       const result = await transformImage(file);
       setProcessedImage(result);
       triggerConfetti();
-      toast({
-        title: "Transformation Complete! 🎉",
-        description: "Your professional headshot is ready.",
-        className: "bg-secondary text-white border-none",
-      });
     } catch (error) {
       toast({
-        title: "Oops!",
-        description: "Something went wrong. Try again.",
+        title: "Processing failed",
         variant: "destructive",
       });
     } finally {
@@ -45,12 +37,29 @@ export default function Home() {
   };
 
   const triggerConfetti = () => {
-    confetti({
-      particleCount: 100,
-      spread: 70,
-      origin: { y: 0.6 },
-      colors: ['#FF6B6B', '#4ECDC4', '#45B7D1', '#FFEAA7']
-    });
+    const end = Date.now() + 1000;
+    const colors = ['#FA4D56', '#2BCFB0', '#ffffff'];
+
+    (function frame() {
+      confetti({
+        particleCount: 3,
+        angle: 60,
+        spread: 55,
+        origin: { x: 0 },
+        colors: colors
+      });
+      confetti({
+        particleCount: 3,
+        angle: 120,
+        spread: 55,
+        origin: { x: 1 },
+        colors: colors
+      });
+
+      if (Date.now() < end) {
+        requestAnimationFrame(frame);
+      }
+    }());
   };
 
   const handleReset = () => {
@@ -69,120 +78,108 @@ export default function Home() {
       document.body.removeChild(link);
       
       toast({
-        title: "Saved! 💾",
-        description: "Image downloaded to your device.",
+        title: "Image saved",
+        className: "bg-slate-900 text-white border-none",
       });
     }
   };
 
   return (
-    <div className="min-h-screen bg-background w-full overflow-x-hidden selection:bg-primary/20">
-      <div className="container mx-auto px-4 py-8 max-w-4xl">
+    <div className="min-h-screen w-full relative overflow-x-hidden font-sans text-slate-900">
+      {/* Background Mesh */}
+      <div className="fixed inset-0 z-0">
+        <img 
+          src={bgMesh} 
+          alt="Background" 
+          className="w-full h-full object-cover opacity-60"
+        />
+        <div className="absolute inset-0 bg-white/30 backdrop-blur-[2px]" />
+      </div>
+
+      <div className="container relative z-10 mx-auto px-4 py-8 max-w-5xl">
         <Header />
 
-        <main className="mt-8 md:mt-12 pb-20">
+        <main className="mt-8 md:mt-16 pb-20">
           <AnimatePresence mode="wait">
             {!originalImage ? (
-              <motion.div
-                key="upload"
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, scale: 0.95 }}
-                transition={{ duration: 0.3 }}
-              >
-                <UploadZone onFileSelect={handleFileSelect} isProcessing={isProcessing} />
-              </motion.div>
+              <UploadZone key="upload" onFileSelect={handleFileSelect} isProcessing={isProcessing} />
             ) : (
               <motion.div
                 key="result"
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
-                className="space-y-8"
+                className="space-y-10"
               >
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
-                  {/* Original Image Card */}
-                  <div className="relative group">
-                     <div className="absolute -inset-1 bg-gradient-to-r from-primary to-secondary rounded-[2rem] blur opacity-25 group-hover:opacity-50 transition duration-1000 group-hover:duration-200"></div>
-                     <Card className="relative overflow-hidden rounded-[1.8rem] border-4 border-white shadow-pop aspect-square bg-white">
-                        <div className="absolute top-4 left-4 z-10 bg-black/50 text-white px-3 py-1 rounded-full text-sm font-bold backdrop-blur-sm">
-                          Before
+                <div className="flex flex-col items-center justify-center min-h-[500px]">
+                  {isProcessing ? (
+                    <motion.div 
+                      initial={{ scale: 0.9, opacity: 0 }}
+                      animate={{ scale: 1, opacity: 1 }}
+                      className="glass-panel p-12 rounded-[2.5rem] text-center space-y-8 max-w-md w-full"
+                    >
+                      <div className="relative w-32 h-32 mx-auto">
+                        <div className="absolute inset-0 bg-gradient-to-r from-primary to-secondary rounded-full blur-xl animate-pulse opacity-50" />
+                        <div className="relative bg-white rounded-full w-full h-full flex items-center justify-center shadow-lg">
+                           <Loader2 className="w-12 h-12 text-primary animate-spin" />
                         </div>
-                        <img 
-                          src={originalImage} 
-                          alt="Original" 
-                          className="w-full h-full object-cover"
-                        />
-                     </Card>
-                  </div>
-
-                  {/* Processed Image Card or Loading State */}
-                  <div className="relative">
-                    {isProcessing ? (
-                      <Card className="aspect-square rounded-[1.8rem] border-4 border-dashed border-secondary/30 flex flex-col items-center justify-center bg-secondary/5 p-8 text-center space-y-6">
-                        <div className="relative">
-                          <div className="absolute inset-0 bg-secondary/20 blur-xl rounded-full animate-pulse"></div>
-                          <Loader2 className="w-16 h-16 text-secondary animate-spin relative z-10" />
-                        </div>
-                        <div>
-                          <h3 className="text-xl font-bold text-foreground">AI Magic in Progress...</h3>
-                          <p className="text-muted-foreground mt-2">Applying studio lighting & suit...</p>
-                        </div>
-                      </Card>
-                    ) : (
-                      <div className="relative group">
-                        <div className="absolute -inset-1 bg-gradient-to-r from-secondary to-accent rounded-[2rem] blur opacity-40 group-hover:opacity-75 transition duration-1000 group-hover:duration-200 animate-pulse"></div>
-                        <Card className="relative overflow-hidden rounded-[1.8rem] border-4 border-white shadow-pop aspect-square bg-white">
-                          <div className="absolute top-4 left-4 z-10 bg-secondary text-white px-3 py-1 rounded-full text-sm font-bold shadow-md">
-                            After ✨
-                          </div>
-                          <img 
-                            src={processedImage!} 
-                            alt="Processed" 
-                            className="w-full h-full object-cover"
-                          />
-                        </Card>
                       </div>
-                    )}
-                  </div>
-                </div>
+                      <div>
+                        <h3 className="text-2xl font-bold text-slate-800">Polishing Pixels...</h3>
+                        <p className="text-slate-500 mt-2">Applying professional lighting & retouching</p>
+                      </div>
+                      
+                      <div className="flex justify-center gap-2">
+                         {[1,2,3].map(i => (
+                           <div key={i} className="w-2 h-2 bg-slate-200 rounded-full animate-bounce" style={{ animationDelay: `${i * 0.1}s`}} />
+                         ))}
+                      </div>
+                    </motion.div>
+                  ) : (
+                    <div className="w-full flex flex-col items-center gap-8">
+                      <ComparisonView original={originalImage} processed={processedImage!} />
+                      
+                      <motion.div 
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 0.5 }}
+                        className="flex flex-col sm:flex-row items-center gap-4 w-full max-w-md"
+                      >
+                        <Button 
+                          onClick={handleDownload}
+                          size="lg"
+                          className="w-full h-14 rounded-2xl text-lg font-bold bg-slate-900 hover:bg-slate-800 text-white shadow-xl hover:shadow-2xl transition-all hover:-translate-y-0.5"
+                        >
+                          <Download className="mr-2 h-5 w-5" />
+                          Download HD
+                        </Button>
+                        
+                        <Button 
+                          variant="outline" 
+                          onClick={handleReset}
+                          size="lg"
+                          className="w-full h-14 rounded-2xl text-lg font-bold border-slate-200 hover:bg-white hover:text-primary transition-all"
+                        >
+                          <RotateCcw className="mr-2 h-5 w-5" />
+                          New Photo
+                        </Button>
+                      </motion.div>
 
-                {/* Controls */}
-                {!isProcessing && (
-                  <motion.div 
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.2 }}
-                    className="flex flex-col sm:flex-row justify-center items-center gap-4 mt-8"
-                  >
-                    <Button 
-                      onClick={handleDownload}
-                      className="h-14 px-8 rounded-2xl text-lg font-bold bg-secondary hover:bg-secondary/90 text-white shadow-pop hover:shadow-pop-hover active:shadow-pop-active transition-all w-full sm:w-auto"
-                    >
-                      <Download className="mr-2 h-5 w-5" />
-                      Save Photo
-                    </Button>
-                    
-                    <Button 
-                      variant="outline" 
-                      onClick={handleReset}
-                      className="h-14 px-8 rounded-2xl text-lg font-bold border-2 hover:bg-muted shadow-pop hover:shadow-pop-hover active:shadow-pop-active transition-all w-full sm:w-auto"
-                    >
-                      <RefreshCw className="mr-2 h-5 w-5" />
-                      Start Over
-                    </Button>
-                  </motion.div>
-                )}
+                      <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        transition={{ delay: 1 }}
+                        className="flex items-center gap-2 text-sm text-emerald-600 font-medium bg-emerald-50 px-4 py-2 rounded-full"
+                      >
+                        <CheckCircle2 className="w-4 h-4" />
+                        Watermark removed automatically
+                      </motion.div>
+                    </div>
+                  )}
+                </div>
               </motion.div>
             )}
           </AnimatePresence>
         </main>
-
-        {/* Footer */}
-        <footer className="text-center text-muted-foreground text-sm font-medium py-8">
-          <p className="flex items-center justify-center gap-2">
-            Made with <span className="text-primary text-lg">♥</span> by Replit
-          </p>
-        </footer>
       </div>
     </div>
   );

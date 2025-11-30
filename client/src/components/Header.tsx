@@ -1,36 +1,42 @@
-import logo from "@assets/generated_images/headshot_hero_app_logo.png";
+import mascot from "@assets/generated_images/mascot_3d.png";
 import { motion } from "framer-motion";
 
 export function Header() {
   return (
-    <header className="flex flex-col items-center justify-center py-8 space-y-4">
+    <header className="flex flex-col items-center justify-center py-12 space-y-6 relative z-10">
       <motion.div 
-        initial={{ scale: 0, rotate: -10 }}
-        animate={{ scale: 1, rotate: 0 }}
-        transition={{ type: "spring", stiffness: 260, damping: 20 }}
+        initial={{ y: -20, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        transition={{ duration: 0.6 }}
         className="relative"
       >
+        <div className="absolute -inset-10 bg-gradient-to-tr from-primary/20 to-secondary/20 rounded-full blur-3xl opacity-50 animate-pulse" />
         <img 
-          src={logo} 
-          alt="HeadShot Hero Logo" 
-          className="w-32 h-32 object-contain drop-shadow-xl"
+          src={mascot} 
+          alt="HeadShot Hero Mascot" 
+          className="w-32 h-32 md:w-40 md:h-40 object-contain drop-shadow-2xl relative z-10 hover:scale-105 transition-transform duration-300"
         />
-        <motion.div 
-          animate={{ rotate: [0, 10, -10, 0] }}
-          transition={{ repeat: Infinity, duration: 5, ease: "easeInOut" }}
-          className="absolute -top-2 -right-2 bg-secondary text-white text-xs font-bold px-2 py-1 rounded-full shadow-lg rotate-12"
-        >
-          AI Powered!
-        </motion.div>
       </motion.div>
       
-      <div className="text-center">
-        <h1 className="text-4xl md:text-5xl font-extrabold text-primary tracking-tight drop-shadow-sm">
-          HeadShot <span className="text-secondary">Hero</span>
-        </h1>
-        <p className="text-muted-foreground mt-2 text-lg font-medium">
-          Turn casual selfies into pro shots instantly! ✨
-        </p>
+      <div className="text-center space-y-2">
+        <motion.h1 
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.2, duration: 0.6 }}
+          className="text-5xl md:text-7xl font-extrabold tracking-tight"
+        >
+          <span className="text-slate-800">HeadShot</span>
+          <span className="text-gradient ml-2">Hero</span>
+        </motion.h1>
+        <motion.p 
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.4 }}
+          className="text-slate-500 text-xl font-medium max-w-md mx-auto leading-relaxed"
+        >
+          Professional AI headshots from your casual selfies.
+          <span className="block text-sm mt-2 font-semibold text-primary/80 uppercase tracking-widest">Instant • Private • Magic</span>
+        </motion.p>
       </div>
     </header>
   );
