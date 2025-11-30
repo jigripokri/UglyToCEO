@@ -335,7 +335,7 @@ export default function Home() {
 
           {/* Right Column - Outfit Customization (40%) */}
           <div className="lg:col-span-2">
-            <div className="bg-gray-50 border border-gray-200 rounded-xl p-5 space-y-5 sticky top-4">
+            <div className="bg-gray-50 border border-gray-200 rounded-xl p-5 space-y-5 lg:sticky lg:top-4">
               <h3 className="text-xs uppercase tracking-widest text-muted-foreground text-center">
                 Customize Outfit
               </h3>
