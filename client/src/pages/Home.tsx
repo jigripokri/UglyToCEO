@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Header } from "@/components/Header";
 import { UploadZone } from "@/components/UploadZone";
-import { transformImage, type ModelType } from "@/lib/api";
+import { transformImage, type ModelType, BACKGROUND_COLORS, type BackgroundColor } from "@/lib/api";
 import { Button } from "@/components/ui/button";
 import { motion, AnimatePresence } from "framer-motion";
 import { Loader2, Download, RotateCcw, Zap, Sparkles } from "lucide-react";
@@ -13,6 +13,7 @@ export default function Home() {
   const [processedImage, setProcessedImage] = useState<string | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
   const [selectedModel, setSelectedModel] = useState<ModelType>("flash");
+  const [selectedColor, setSelectedColor] = useState<BackgroundColor>("#562226");
   const [pendingFile, setPendingFile] = useState<File | null>(null);
   const { toast } = useToast();
 
@@ -24,7 +25,7 @@ export default function Home() {
     setIsProcessing(true);
     
     try {
-      const result = await transformImage(file, selectedModel);
+      const result = await transformImage(file, selectedModel, selectedColor);
       setProcessedImage(result);
       triggerConfetti();
     } catch (error) {
@@ -110,6 +111,32 @@ export default function Home() {
               <Sparkles className="w-4 h-4" />
               Pro
             </button>
+          </div>
+        </div>
+
+        {/* Background Color Picker */}
+        <div className="flex flex-col items-center mb-8">
+          <p className="text-xs uppercase tracking-widest text-muted-foreground mb-3">Background</p>
+          <div className="flex items-center gap-3">
+            {BACKGROUND_COLORS.map((color) => (
+              <button
+                key={color.hex}
+                type="button"
+                data-testid={`color-${color.hex.replace('#', '')}`}
+                onClick={() => setSelectedColor(color.hex)}
+                disabled={isProcessing}
+                title={color.name}
+                className={`w-8 h-8 rounded-full transition-all duration-200 ${
+                  isProcessing ? "opacity-50 cursor-not-allowed" : "cursor-pointer hover:scale-110"
+                }`}
+                style={{
+                  backgroundColor: color.hex,
+                  boxShadow: selectedColor === color.hex 
+                    ? `0 0 0 2px white, 0 0 0 4px ${color.hex}` 
+                    : "0 1px 3px rgba(0,0,0,0.3)",
+                }}
+              />
+            ))}
           </div>
         </div>
 
