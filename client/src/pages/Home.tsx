@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Header } from "@/components/Header";
 import { 
   transformImage, 
@@ -14,10 +14,23 @@ import {
 import { ClothingIconMap } from "@/components/ClothingIcons";
 import { Button } from "@/components/ui/button";
 import { motion, AnimatePresence } from "framer-motion";
-import { Loader2, Download, RotateCcw, Zap, Sparkles, Upload } from "lucide-react";
+import { Loader2, Download, RotateCcw, Zap, Sparkles, Upload, Camera } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useDropzone } from "react-dropzone";
 import confetti from "canvas-confetti";
+
+const PHOTOGRAPHER_MESSAGES = [
+  "Chin up, confidence on...",
+  "Give me your best 'I just closed the deal' look",
+  "Pretend the camera owes you money",
+  "Channel your inner CEO",
+  "Think 'approachable but powerful'",
+  "Shoulders back, success forward",
+  "Show me that corner office energy",
+  "Perfect! Now even more professional",
+  "That's the million-dollar smile",
+  "You're absolutely nailing this",
+];
 
 export default function Home() {
   const [originalImage, setOriginalImage] = useState<string | null>(null);
