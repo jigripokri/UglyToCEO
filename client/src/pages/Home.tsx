@@ -466,39 +466,103 @@ export default function Home() {
           </div>
         </div>
 
-        {/* Examples Section */}
-        <section className="mt-12 py-10 -mx-4 px-4 bg-gradient-to-b from-gray-50/50 to-gray-100/30">
-          <div className="max-w-5xl mx-auto">
-            {/* Section Header */}
-            <div className="text-center mb-8">
-              <h2 className="text-xl md:text-2xl font-medium text-foreground/80 mb-2">
-                What You'll Receive
-              </h2>
-              <p className="text-sm text-muted-foreground/70">
-                See real transformations from our AI studio
+        {/* Examples Section - Subdued */}
+        <section className="mt-16 py-8 -mx-4 px-4 bg-gray-50/40">
+          <div className="max-w-4xl mx-auto">
+            {/* Section Header - Muted */}
+            <div className="text-center mb-6">
+              <p className="text-xs uppercase tracking-widest text-muted-foreground/60 mb-1">
+                See The Difference
               </p>
+              <h3 className="text-base font-medium text-foreground/70">
+                Real Transformations
+              </h3>
             </div>
 
-            {/* Examples Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {/* Example 1 - Male */}
-              <div className="bg-white rounded-2xl overflow-hidden shadow-sm border border-gray-100">
-                <img 
-                  src="/attached_assets/image_1764470622536.png" 
-                  alt="Before and after transformation - male professional headshot" 
-                  className="w-full h-auto"
-                  data-testid="example-male"
-                />
+            {/* Examples - Two columns on desktop, stacked on mobile */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+              {/* Example 1 - Female */}
+              <div className="flex items-center justify-center gap-3" data-testid="example-female">
+                {/* Before */}
+                <div className="flex-1 max-w-[140px]">
+                  <div className="relative rounded-xl overflow-hidden shadow-sm border border-gray-200/60">
+                    <img 
+                      src="/attached_assets/before(1)_1764471091566.jpg" 
+                      alt="Before - casual photo" 
+                      className="w-full h-[180px] object-cover object-top"
+                    />
+                    <div className="absolute bottom-2 left-2">
+                      <span className="text-[9px] uppercase tracking-wider text-white/80 bg-black/40 px-1.5 py-0.5 rounded-full backdrop-blur-sm">
+                        Before
+                      </span>
+                    </div>
+                  </div>
+                </div>
+                
+                {/* Arrow */}
+                <div className="flex-shrink-0 text-muted-foreground/40">
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M5 12h14M12 5l7 7-7 7"/>
+                  </svg>
+                </div>
+                
+                {/* After */}
+                <div className="flex-1 max-w-[140px]">
+                  <div className="relative rounded-xl overflow-hidden shadow-sm border border-gray-200/60">
+                    <img 
+                      src="/attached_assets/after (1)_1764471091567.png" 
+                      alt="After - professional headshot" 
+                      className="w-full h-[180px] object-cover object-top"
+                    />
+                    <div className="absolute bottom-2 left-2">
+                      <span className="text-[9px] uppercase tracking-wider text-white/80 bg-black/40 px-1.5 py-0.5 rounded-full backdrop-blur-sm">
+                        After
+                      </span>
+                    </div>
+                  </div>
+                </div>
               </div>
 
-              {/* Example 2 - Female */}
-              <div className="bg-white rounded-2xl overflow-hidden shadow-sm border border-gray-100">
-                <img 
-                  src="/attached_assets/image_1764470635946.png" 
-                  alt="Before and after transformation - female professional headshot" 
-                  className="w-full h-auto"
-                  data-testid="example-female"
-                />
+              {/* Example 2 - Male */}
+              <div className="flex items-center justify-center gap-3" data-testid="example-male">
+                {/* Before */}
+                <div className="flex-1 max-w-[140px]">
+                  <div className="relative rounded-xl overflow-hidden shadow-sm border border-gray-200/60">
+                    <img 
+                      src="/attached_assets/before(2)_1764471091566.jpg" 
+                      alt="Before - casual photo" 
+                      className="w-full h-[180px] object-cover object-top"
+                    />
+                    <div className="absolute bottom-2 left-2">
+                      <span className="text-[9px] uppercase tracking-wider text-white/80 bg-black/40 px-1.5 py-0.5 rounded-full backdrop-blur-sm">
+                        Before
+                      </span>
+                    </div>
+                  </div>
+                </div>
+                
+                {/* Arrow */}
+                <div className="flex-shrink-0 text-muted-foreground/40">
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M5 12h14M12 5l7 7-7 7"/>
+                  </svg>
+                </div>
+                
+                {/* After */}
+                <div className="flex-1 max-w-[140px]">
+                  <div className="relative rounded-xl overflow-hidden shadow-sm border border-gray-200/60">
+                    <img 
+                      src="/attached_assets/after (2)_1764471091567.png" 
+                      alt="After - professional headshot" 
+                      className="w-full h-[180px] object-cover object-top"
+                    />
+                    <div className="absolute bottom-2 left-2">
+                      <span className="text-[9px] uppercase tracking-wider text-white/80 bg-black/40 px-1.5 py-0.5 rounded-full backdrop-blur-sm">
+                        After
+                      </span>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
