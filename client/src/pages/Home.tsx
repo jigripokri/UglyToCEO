@@ -231,17 +231,19 @@ export default function Home() {
                 <div className="bg-gray-50 border border-gray-200 rounded-lg p-6 mt-3 space-y-6">
                   {/* Gender Toggle */}
                   <div className="flex items-center justify-center gap-4">
-                    <div className="inline-flex items-center bg-white border border-gray-300 rounded-full p-1">
+                    <div className="inline-flex items-center bg-gray-100 border border-gray-300 rounded-full p-1 shadow-md">
                       <button
                         type="button"
                         data-testid="gender-men"
                         onClick={() => handleGenderChange("men")}
                         disabled={isProcessing}
-                        className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-all duration-200 ${
-                          gender === "men" 
-                            ? "bg-foreground text-background" 
-                            : "text-muted-foreground hover:text-foreground"
-                        } ${isProcessing ? "opacity-50 cursor-not-allowed" : "cursor-pointer"}`}
+                        style={{
+                          backgroundColor: gender === "men" ? "#1a1a1a" : "transparent",
+                          color: gender === "men" ? "#ffffff" : "#666666",
+                        }}
+                        className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-semibold transition-all duration-200 ${
+                          isProcessing ? "opacity-50 cursor-not-allowed" : "cursor-pointer"
+                        }`}
                       >
                         👔 Men
                       </button>
@@ -250,11 +252,13 @@ export default function Home() {
                         data-testid="gender-women"
                         onClick={() => handleGenderChange("women")}
                         disabled={isProcessing}
-                        className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-all duration-200 ${
-                          gender === "women" 
-                            ? "bg-foreground text-background" 
-                            : "text-muted-foreground hover:text-foreground"
-                        } ${isProcessing ? "opacity-50 cursor-not-allowed" : "cursor-pointer"}`}
+                        style={{
+                          backgroundColor: gender === "women" ? "#1a1a1a" : "transparent",
+                          color: gender === "women" ? "#ffffff" : "#666666",
+                        }}
+                        className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-semibold transition-all duration-200 ${
+                          isProcessing ? "opacity-50 cursor-not-allowed" : "cursor-pointer"
+                        }`}
                       >
                         👗 Women
                       </button>
