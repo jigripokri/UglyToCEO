@@ -271,7 +271,7 @@ export default function Home() {
 
           {/* Right Column - Settings Panel (30%) */}
           <div className="lg:col-span-4">
-            <div className="space-y-4 lg:sticky lg:top-4 lg:max-w-[340px]">
+            <div className="space-y-4 lg:sticky lg:top-4">
               
               {/* Session Settings Card */}
               <div className="bg-gray-50 border border-gray-200 rounded-xl p-4 space-y-4">
