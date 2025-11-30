@@ -1,7 +1,7 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
-import { generateProfessionalHeadshot, type ModelType } from "./gemini-service";
+import { generateProfessionalHeadshot, type ModelType, type Gender, type ClothingOptions } from "./gemini-service";
 import multer from "multer";
 
 const upload = multer({
@@ -20,6 +20,24 @@ const VALID_BACKGROUND_COLORS = [
   "#0a0a0a", // Classic Black
 ] as const;
 
+const VALID_CLOTHING_IDS = {
+  men: ["blazer", "suit", "dress_shirt", "knit"],
+  women: ["blazer", "blouse", "jewel_blouse", "sheath_dress"],
+} as const;
+
+const VALID_CLOTHING_COLORS = [
+  "#4a4a4a", // Charcoal Gray
+  "#1a2744", // Navy
+  "#1a1a1a", // Black
+  "#f5f5f5", // White
+  "#a8c5e2", // Light Blue
+  "#f0d4d4", // Pale Pink
+  "#562226", // Burgundy
+  "#f5f5dc", // Ivory
+  "#2e5a4c", // Emerald
+  "#1a3a5c", // Sapphire
+] as const;
+
 export async function registerRoutes(
   httpServer: Server,
   app: Express
@@ -36,14 +54,49 @@ export async function registerRoutes(
       const modelType = (req.body.model as ModelType) || "flash";
       
       // Validate background color against approved palette
-      const requestedColor = req.body.backgroundColor || "#562226";
-      const backgroundColor = VALID_BACKGROUND_COLORS.includes(requestedColor) 
-        ? requestedColor 
+      const requestedBgColor = req.body.backgroundColor || "#562226";
+      const backgroundColor = VALID_BACKGROUND_COLORS.includes(requestedBgColor as any) 
+        ? requestedBgColor 
         : "#562226";
       
-      console.log(`📸 Processing headshot transformation with model: ${modelType}, background: ${backgroundColor}`);
+      // Validate gender
+      const requestedGender = req.body.gender || "men";
+      const gender: Gender = (requestedGender === "men" || requestedGender === "women") 
+        ? requestedGender 
+        : "men";
       
-      const resultBase64 = await generateProfessionalHeadshot(imageBase64, mimeType, modelType, backgroundColor);
+      // Validate clothing ID
+      const requestedClothingId = req.body.clothingId || "blazer";
+      const validClothingIds = VALID_CLOTHING_IDS[gender];
+      const clothingId = validClothingIds.includes(requestedClothingId as any)
+        ? requestedClothingId
+        : "blazer";
+      
+      // Validate clothing color
+      const requestedClothingColor = req.body.clothingColor || "#4a4a4a";
+      const clothingColor = VALID_CLOTHING_COLORS.includes(requestedClothingColor as any)
+        ? requestedClothingColor
+        : "#4a4a4a";
+      
+      const clothing: ClothingOptions = {
+        gender,
+        clothingId,
+        clothingColor,
+      };
+      
+      console.log(`📸 Processing headshot transformation:`);
+      console.log(`   Model: ${modelType}`);
+      console.log(`   Background: ${backgroundColor}`);
+      console.log(`   Gender: ${gender}`);
+      console.log(`   Clothing: ${clothingId} (${clothingColor})`);
+      
+      const resultBase64 = await generateProfessionalHeadshot(
+        imageBase64, 
+        mimeType, 
+        modelType, 
+        backgroundColor,
+        clothing
+      );
       
       await storage.logHeadshotCreation();
       
