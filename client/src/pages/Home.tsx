@@ -210,18 +210,16 @@ export default function Home() {
                           Before
                         </span>
                       </div>
-                      <motion.div
-                        initial={{ opacity: 0, scale: 0.95 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        transition={{ duration: 0.4 }}
-                        className="min-h-[500px]"
-                      >
-                        <img 
+                      <div className="h-[500px] overflow-hidden">
+                        <motion.img
+                          initial={{ opacity: 0, scale: 0.95 }}
+                          animate={{ opacity: 1, scale: 1 }}
+                          transition={{ duration: 0.4 }}
                           src={originalImage} 
                           alt="Before" 
-                          className="w-full h-full object-cover min-h-[500px]"
+                          className="w-full h-full object-cover"
                         />
-                      </motion.div>
+                      </div>
                     </div>
 
                     {/* After Pane */}
@@ -231,13 +229,13 @@ export default function Home() {
                           After
                         </span>
                       </div>
-                      <div className="min-h-[500px] bg-gradient-to-br from-gray-100 to-gray-50">
+                      <div className="h-[500px] overflow-hidden bg-gradient-to-br from-gray-100 to-gray-50">
                         {isProcessing ? (
                           /* Spinner Overlay */
                           <motion.div
                             initial={{ opacity: 0 }}
                             animate={{ opacity: 1 }}
-                            className="w-full h-full min-h-[500px] flex flex-col items-center justify-center space-y-6"
+                            className="w-full h-full flex flex-col items-center justify-center space-y-6"
                           >
                             <div className="relative w-20 h-20">
                               <div className="absolute inset-0 bg-gray-200/80 rounded-full shadow-inner" />
@@ -261,7 +259,7 @@ export default function Home() {
                             transition={{ duration: 0.4 }}
                             src={processedImage}
                             alt="After"
-                            className="w-full h-full object-cover min-h-[500px]"
+                            className="w-full h-full object-cover"
                           />
                         ) : null}
                       </div>
