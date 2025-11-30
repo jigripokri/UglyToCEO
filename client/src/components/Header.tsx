@@ -29,32 +29,36 @@ export function Header({ selectedModel, setSelectedModel, isProcessing, gender }
             data-testid="toggle-flash"
             onClick={() => setSelectedModel("flash")}
             disabled={isProcessing}
+            aria-label="Flash mode"
+            title="Flash mode"
             style={{
               backgroundColor: selectedModel === "flash" ? "#1a1a1a" : "transparent",
               color: selectedModel === "flash" ? "#ffffff" : "#666666",
             }}
-            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold transition-all duration-200 ${
+            className={`flex items-center justify-center gap-1.5 w-11 h-11 md:w-auto md:h-auto md:px-3 md:py-1.5 rounded-full text-xs font-semibold transition-all duration-200 ${
               isProcessing ? "opacity-50 cursor-not-allowed" : "cursor-pointer"
             }`}
           >
-            <Zap className="w-3 h-3" />
-            Flash
+            <Zap className="w-4 h-4 md:w-3 md:h-3" />
+            <span className="hidden md:inline">Flash</span>
           </button>
           <button
             type="button"
             data-testid="toggle-pro"
             onClick={() => setSelectedModel("pro")}
             disabled={isProcessing}
+            aria-label="Pro mode"
+            title="Pro mode"
             style={{
               backgroundColor: selectedModel === "pro" ? "#1a1a1a" : "transparent",
               color: selectedModel === "pro" ? "#ffffff" : "#666666",
             }}
-            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold transition-all duration-200 ${
+            className={`flex items-center justify-center gap-1.5 w-11 h-11 md:w-auto md:h-auto md:px-3 md:py-1.5 rounded-full text-xs font-semibold transition-all duration-200 ${
               isProcessing ? "opacity-50 cursor-not-allowed" : "cursor-pointer"
             }`}
           >
-            <Sparkles className="w-3 h-3" />
-            Pro
+            <Sparkles className="w-4 h-4 md:w-3 md:h-3" />
+            <span className="hidden md:inline">Pro</span>
           </button>
         </div>
       </div>
@@ -63,7 +67,7 @@ export function Header({ selectedModel, setSelectedModel, isProcessing, gender }
       <div className="flex flex-col items-center justify-center py-6 md:py-10 space-y-4 relative z-10">
         
         {/* V-Formation Cards */}
-        <div className="relative flex flex-col md:flex-row items-center justify-center gap-1 md:gap-0">
+        <div className="relative flex flex-row items-center justify-center gap-0">
           {/* Before Card */}
           <AnimatePresence mode="wait">
             <motion.div
@@ -77,7 +81,7 @@ export function Header({ selectedModel, setSelectedModel, isProcessing, gender }
                 damping: 20,
                 delay: 0.1
               }}
-              className="relative w-[100px] h-[130px] md:w-[120px] md:h-[160px] rounded-xl overflow-hidden shadow-lg md:-mr-3 z-10"
+              className="relative w-[90px] h-[120px] md:w-[120px] md:h-[160px] rounded-xl overflow-hidden shadow-lg -mr-2 md:-mr-3 z-10"
               style={{
                 boxShadow: "0 8px 32px rgba(0,0,0,0.15), 0 2px 8px rgba(0,0,0,0.1)"
               }}
@@ -112,7 +116,7 @@ export function Header({ selectedModel, setSelectedModel, isProcessing, gender }
                 damping: 20,
                 delay: 0.2
               }}
-              className="relative w-[100px] h-[130px] md:w-[120px] md:h-[160px] rounded-xl overflow-hidden shadow-lg md:-ml-3 z-10"
+              className="relative w-[90px] h-[120px] md:w-[120px] md:h-[160px] rounded-xl overflow-hidden shadow-lg -ml-2 md:-ml-3 z-10"
               style={{
                 boxShadow: "0 8px 32px rgba(0,0,0,0.15), 0 2px 8px rgba(0,0,0,0.1)"
               }}
@@ -136,12 +140,12 @@ export function Header({ selectedModel, setSelectedModel, isProcessing, gender }
         </div>
 
         {/* Title and Tagline */}
-        <div className="text-center space-y-3 max-w-2xl mx-auto pt-2">
+        <div className="text-center space-y-2 md:space-y-3 max-w-2xl mx-auto pt-1 md:pt-2 px-4">
           <motion.h1 
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.3, duration: 0.6 }}
-            className="text-4xl md:text-5xl lg:text-6xl font-medium tracking-tight leading-tight text-foreground"
+            className="text-3xl md:text-5xl lg:text-6xl font-medium tracking-tight leading-tight text-foreground"
             style={{ fontFamily: "'Cormorant Garamond', serif" }}
           >
             HeadShot Hero
@@ -151,16 +155,18 @@ export function Header({ selectedModel, setSelectedModel, isProcessing, gender }
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.5, duration: 0.6 }}
-            className="w-12 h-px bg-foreground/20 mx-auto"
+            className="w-10 md:w-12 h-px bg-foreground/20 mx-auto"
           />
           
           <motion.p 
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.6, duration: 0.6 }}
-            className="text-muted-foreground text-base md:text-lg font-light leading-relaxed tracking-wide"
+            className="text-muted-foreground text-sm md:text-lg font-light leading-relaxed tracking-wide"
           >
-            Professional AI-powered headshots.<br className="hidden md:block" />
+            Professional AI-powered headshots.
+            <span className="hidden md:inline"><br /></span>
+            <span className="md:hidden"> </span>
             Studio quality, without the studio.
           </motion.p>
         </div>
