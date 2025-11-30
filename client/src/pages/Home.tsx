@@ -1,11 +1,10 @@
 import { useState } from "react";
 import { Header } from "@/components/Header";
 import { UploadZone } from "@/components/UploadZone";
-import { ComparisonView } from "@/components/ComparisonView";
 import { transformImage } from "@/lib/mock-service";
 import { Button } from "@/components/ui/button";
 import { motion, AnimatePresence } from "framer-motion";
-import { Loader2, Download, RotateCcw, Sparkles, CheckCircle2 } from "lucide-react";
+import { Loader2, Download, RotateCcw, CheckCircle2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import confetti from "canvas-confetti";
 import bgMesh from "@assets/generated_images/bg_mesh.png";
@@ -136,13 +135,56 @@ export default function Home() {
                     </motion.div>
                   ) : (
                     <div className="w-full flex flex-col items-center gap-8">
-                      <ComparisonView original={originalImage} processed={processedImage!} />
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 w-full max-w-4xl">
+                        {/* Before Image */}
+                        <motion.div
+                          initial={{ opacity: 0, x: -20 }}
+                          animate={{ opacity: 1, x: 0 }}
+                          transition={{ duration: 0.5 }}
+                          className="relative group"
+                        >
+                          <div className="glass-panel rounded-3xl p-2 overflow-hidden">
+                            <div className="relative aspect-[4/5] rounded-2xl overflow-hidden bg-slate-100">
+                              <img 
+                                src={originalImage} 
+                                alt="Before" 
+                                className="w-full h-full object-cover"
+                              />
+                              <div className="absolute top-4 left-4 bg-black/50 backdrop-blur-md text-white px-4 py-1.5 rounded-full text-sm font-medium border border-white/10">
+                                Before
+                              </div>
+                            </div>
+                          </div>
+                        </motion.div>
+
+                        {/* After Image */}
+                        <motion.div
+                          initial={{ opacity: 0, x: 20 }}
+                          animate={{ opacity: 1, x: 0 }}
+                          transition={{ duration: 0.5, delay: 0.2 }}
+                          className="relative group"
+                        >
+                          <div className="absolute -inset-1 bg-gradient-to-r from-primary/30 to-secondary/30 rounded-[2rem] blur-lg opacity-50 group-hover:opacity-100 transition duration-500" />
+                          <div className="glass-panel rounded-3xl p-2 overflow-hidden relative">
+                            <div className="relative aspect-[4/5] rounded-2xl overflow-hidden bg-slate-100">
+                              <img 
+                                src={processedImage!} 
+                                alt="After" 
+                                className="w-full h-full object-cover"
+                              />
+                              <div className="absolute top-4 right-4 bg-white/90 backdrop-blur-md text-primary px-4 py-1.5 rounded-full text-sm font-bold shadow-lg">
+                                After ✨
+                              </div>
+                            </div>
+                          </div>
+                        </motion.div>
+                      </div>
                       
                       <motion.div 
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: 0.5 }}
-                        className="flex flex-col sm:flex-row items-center gap-4 w-full max-w-md"
+                        className="flex flex-col sm:flex-row items-center gap-4 w-full max-w-md mt-4"
                       >
                         <Button 
                           onClick={handleDownload}
