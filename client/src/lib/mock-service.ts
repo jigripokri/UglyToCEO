@@ -1,9 +1,3 @@
-import professionalHeadshot from "@assets/generated_images/professional_headshot_after.png";
+import { transformImage as apiTransformImage } from "./api";
 
-export const transformImage = async (file: File): Promise<string> => {
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      resolve(professionalHeadshot);
-    }, 3000); // 3 second delay to simulate "processing"
-  });
-};
+export const transformImage = apiTransformImage;

@@ -1,16 +1,58 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
+import { generateProfessionalHeadshot } from "./gemini-service";
+import multer from "multer";
+
+const upload = multer({
+  storage: multer.memoryStorage(),
+  limits: {
+    fileSize: 10 * 1024 * 1024, // 10MB max
+  },
+});
 
 export async function registerRoutes(
   httpServer: Server,
   app: Express
 ): Promise<Server> {
-  // put application routes here
-  // prefix all routes with /api
+  
+  app.post("/api/transform", upload.single("image"), async (req, res) => {
+    try {
+      if (!req.file) {
+        return res.status(400).json({ error: "No image file provided" });
+      }
 
-  // use storage to perform CRUD operations on the storage interface
-  // e.g. storage.insertUser(user) or storage.getUserByUsername(username)
+      const imageBase64 = req.file.buffer.toString("base64");
+      
+      const resultBase64 = await generateProfessionalHeadshot(imageBase64);
+      
+      await storage.logHeadshotCreation();
+      
+      const count = await storage.getHeadshotCount();
+      console.log(`✨ Headshot created! Total count: ${count}`);
+      
+      res.json({
+        image: `data:image/jpeg;base64,${resultBase64}`,
+        count,
+      });
+    } catch (error) {
+      console.error("Error transforming image:", error);
+      res.status(500).json({ 
+        error: "Failed to transform image",
+        details: error instanceof Error ? error.message : "Unknown error"
+      });
+    }
+  });
+
+  app.get("/api/stats", async (req, res) => {
+    try {
+      const count = await storage.getHeadshotCount();
+      res.json({ totalHeadshots: count });
+    } catch (error) {
+      console.error("Error fetching stats:", error);
+      res.status(500).json({ error: "Failed to fetch statistics" });
+    }
+  });
 
   return httpServer;
 }
