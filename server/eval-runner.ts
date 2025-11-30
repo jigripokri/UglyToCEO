@@ -1,33 +1,29 @@
 import { GoogleGenAI } from "@google/genai";
 import { db } from "./db";
 import { evalResults } from "@shared/schema";
-import { generateProfessionalHeadshot } from "./gemini-service";
+import { generateProfessionalHeadshot, type Gender, type ClothingOptions } from "./gemini-service";
 import * as fs from "fs";
 import * as path from "path";
 
-const BACKGROUND_COLORS = [
-  "#562226",
-  "#1a2744",
-  "#2d2d2d",
-  "#1e3a2f",
-  "#8b7355",
-  "#0a0a0a",
+const BACKGROUND_COLOR = "#562226";
+
+const MALE_OUTFITS = [
+  { clothingId: "blazer", clothingColor: "#4a4a4a" },
+  { clothingId: "suit", clothingColor: "#1a2744" },
+  { clothingId: "dress_shirt", clothingColor: "#f5f5f5" },
+  { clothingId: "knit", clothingColor: "#2e5a4c" },
 ];
 
-const COLOR_NAMES: Record<string, string> = {
-  "#562226": "Deep Burgundy",
-  "#1a2744": "Navy Blue",
-  "#2d2d2d": "Charcoal Gray",
-  "#1e3a2f": "Forest Green",
-  "#8b7355": "Warm Taupe",
-  "#0a0a0a": "Classic Black",
-};
+const FEMALE_OUTFITS = [
+  { clothingId: "blazer", clothingColor: "#4a4a4a" },
+  { clothingId: "blouse", clothingColor: "#f5f5f5" },
+  { clothingId: "jewel_blouse", clothingColor: "#562226" },
+  { clothingId: "sheath_dress", clothingColor: "#1a2744" },
+];
 
-interface EvalTestCase {
-  imagePath: string;
-  imageName: string;
-  backgroundColor: string;
-  model: "flash" | "pro";
+interface TestImage {
+  fileName: string;
+  gender: Gender;
 }
 
 interface JudgeResponse {
@@ -39,90 +35,53 @@ interface JudgeResponse {
   notes: string;
 }
 
+function shuffleArray<T>(array: T[]): T[] {
+  const shuffled = [...array];
+  for (let i = shuffled.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+  }
+  return shuffled;
+}
+
 async function judgeHeadshot(
   originalImageBase64: string,
   generatedImageBase64: string,
-  expectedBackgroundColor: string,
   genai: GoogleGenAI
 ): Promise<JudgeResponse> {
-  const prompt = `You are an expert headshot quality evaluator. Analyze the following two images:
-  
-1. ORIGINAL IMAGE: The input photo that was provided
-2. GENERATED IMAGE: The professional headshot that was created from the original
+  const prompt = `You are an expert headshot quality evaluator. Analyze these two images:
 
-Expected background color: ${COLOR_NAMES[expectedBackgroundColor] || expectedBackgroundColor} (${expectedBackgroundColor})
+1. ORIGINAL IMAGE: The input photo
+2. GENERATED IMAGE: The professional headshot created from the original
 
-Rate the generated headshot on the following criteria using a 1-5 scale (5 is best):
+Rate the generated headshot (1-5 scale, 5 is best):
 
-1. **Professionalism Score (1-5)**: Does this look like a professional headshot? Consider lighting, composition, clothing appearance, and overall polish.
+1. **Professionalism Score**: Does this look like a professional headshot?
+2. **Identity Preservation Score**: Does the person look like the same person?
+3. **Background Accuracy**: Is the background a solid burgundy/maroon color? (true/false)
+4. **Technical Quality Score**: Is the image free of artifacts and distortions?
+5. **Overall Score**: Your holistic assessment.
 
-2. **Identity Preservation Score (1-5)**: Does the person in the generated image look like the same person in the original? Consider facial features, distinctive characteristics, and likeness.
-
-3. **Background Accuracy (true/false)**: Is the background approximately the expected color (${COLOR_NAMES[expectedBackgroundColor] || expectedBackgroundColor})?
-
-4. **Technical Quality Score (1-5)**: Is the image free of artifacts, distortions, blurriness, or AI-generated anomalies? Check for issues with hands, clothing edges, hair, and skin.
-
-5. **Overall Score (1-5)**: Your holistic assessment of whether this is a successful professional headshot transformation.
-
-Respond in this exact JSON format (no markdown):
-{
-  "professionalismScore": <1-5>,
-  "identityPreservationScore": <1-5>,
-  "backgroundAccuracy": <true or false>,
-  "technicalQualityScore": <1-5>,
-  "overallScore": <1-5>,
-  "notes": "<brief explanation of major issues or strengths>"
-}`;
+Respond in JSON only (no markdown):
+{"professionalismScore": 1-5, "identityPreservationScore": 1-5, "backgroundAccuracy": true/false, "technicalQualityScore": 1-5, "overallScore": 1-5, "notes": "brief note"}`;
 
   try {
     const response = await genai.models.generateContent({
       model: "gemini-2.5-flash",
-      contents: [
-        {
-          role: "user",
-          parts: [
-            { text: prompt },
-            {
-              inlineData: {
-                mimeType: "image/jpeg",
-                data: originalImageBase64,
-              },
-            },
-            {
-              inlineData: {
-                mimeType: "image/png",
-                data: generatedImageBase64,
-              },
-            },
-          ],
-        },
-      ],
+      contents: [{
+        role: "user",
+        parts: [
+          { text: prompt },
+          { inlineData: { mimeType: "image/jpeg", data: originalImageBase64 }},
+          { inlineData: { mimeType: "image/png", data: generatedImageBase64 }},
+        ],
+      }],
     });
 
-    if (!response.candidates || response.candidates.length === 0) {
-      throw new Error("No response generated from judge");
-    }
-
-    const candidate = response.candidates[0];
-    if (!candidate.content?.parts) {
-      throw new Error("Invalid response format from judge");
-    }
-
-    let text = "";
-    for (const part of candidate.content.parts) {
-      if (part.text) {
-        text = part.text;
-        break;
-      }
-    }
-
-    if (!text) {
-      throw new Error("No text in judge response");
-    }
-
+    const text = response.candidates?.[0]?.content?.parts?.[0]?.text || "";
     const cleanText = text.trim().replace(/```json\n?/g, "").replace(/```\n?/g, "").trim();
-    
     const result = JSON.parse(cleanText);
+    
     return {
       professionalismScore: Math.min(5, Math.max(1, result.professionalismScore)),
       identityPreservationScore: Math.min(5, Math.max(1, result.identityPreservationScore)),
@@ -164,133 +123,137 @@ async function runEvaluation() {
     console.log(`Creating eval-images directory at ${testImagesDir}`);
     fs.mkdirSync(testImagesDir, { recursive: true });
     console.log("\nPlease add test images to the eval-images directory and run again.");
-    console.log("Supported formats: .jpg, .jpeg, .png, .webp");
     process.exit(0);
   }
 
-  const imageFiles = fs.readdirSync(testImagesDir).filter((f) => 
-    /\.(jpg|jpeg|png|webp)$/i.test(f)
-  );
+  const allImages = fs.readdirSync(testImagesDir).filter(f => /\.(jpg|jpeg|png|webp)$/i.test(f));
 
-  if (imageFiles.length === 0) {
-    console.log("No test images found in eval-images directory.");
-    console.log("Add images (.jpg, .jpeg, .png, .webp) and run again.");
+  if (allImages.length === 0) {
+    console.log("No test images found. Add images to eval-images/ and run again.");
     process.exit(0);
   }
+
+  const maleImages: TestImage[] = allImages
+    .filter(f => f.toLowerCase().includes("man") || f.toLowerCase().includes("male"))
+    .slice(0, 10)
+    .map(f => ({ fileName: f, gender: "men" as Gender }));
+
+  const femaleImages: TestImage[] = allImages
+    .filter(f => f.toLowerCase().includes("woman") || f.toLowerCase().includes("female"))
+    .slice(0, 10)
+    .map(f => ({ fileName: f, gender: "women" as Gender }));
+
+  const testImages = [...maleImages, ...femaleImages];
 
   console.log(`\n🧪 Starting Evaluation Run: ${runId}`);
-  console.log(`📁 Found ${imageFiles.length} test images`);
-  console.log(`🎨 Testing with ${BACKGROUND_COLORS.length} background colors each`);
-  console.log(`⚡ Testing both Flash and Pro models\n`);
-
-  const testCases: EvalTestCase[] = [];
-  
-  for (const imageFile of imageFiles) {
-    for (const bgColor of BACKGROUND_COLORS) {
-      for (const model of ["flash", "pro"] as const) {
-        testCases.push({
-          imagePath: path.join(testImagesDir, imageFile),
-          imageName: imageFile,
-          backgroundColor: bgColor,
-          model,
-        });
-      }
-    }
-  }
-
-  console.log(`📊 Total test cases: ${testCases.length}\n`);
+  console.log(`📁 Found ${maleImages.length} male and ${femaleImages.length} female test images`);
+  console.log(`🎨 Using background: ${BACKGROUND_COLOR}`);
+  console.log(`👔 4 outfit variations per image (2 Flash + 2 Pro)`);
+  console.log(`📊 Total tests: ${testImages.length * 4}\n`);
 
   let completed = 0;
   let passed = 0;
   let failed = 0;
+  const totalTests = testImages.length * 4;
 
-  for (const testCase of testCases) {
-    completed++;
-    const progress = `[${completed}/${testCases.length}]`;
-    
-    console.log(`${progress} Testing ${testCase.imageName} | ${COLOR_NAMES[testCase.backgroundColor]} | ${testCase.model.toUpperCase()}`);
+  for (const testImage of testImages) {
+    const outfits = testImage.gender === "men" ? MALE_OUTFITS : FEMALE_OUTFITS;
+    const shuffledOutfits = shuffleArray(outfits).slice(0, 4);
+    const models: Array<"flash" | "pro"> = ["flash", "flash", "pro", "pro"];
 
-    const startTime = Date.now();
-    
-    try {
-      const imageBuffer = fs.readFileSync(testCase.imagePath);
-      const originalBase64 = imageBuffer.toString("base64");
-      const ext = path.extname(testCase.imagePath).toLowerCase();
-      const mimeType = ext === ".png" ? "image/png" : ext === ".webp" ? "image/webp" : "image/jpeg";
+    for (let i = 0; i < 4; i++) {
+      completed++;
+      const model = models[i];
+      const outfit = shuffledOutfits[i];
+      const progress = `[${completed}/${totalTests}]`;
+      
+      console.log(`${progress} ${testImage.fileName} | ${model.toUpperCase()} | ${outfit.clothingId}`);
 
-      const generatedBase64 = await generateProfessionalHeadshot(
-        originalBase64,
-        mimeType,
-        testCase.model,
-        testCase.backgroundColor,
-        { gender: "men", clothingId: "blazer", clothingColor: "#4a4a4a" }
-      );
+      const startTime = Date.now();
+      const imagePath = path.join(testImagesDir, testImage.fileName);
 
-      const processingTime = Date.now() - startTime;
+      try {
+        const imageBuffer = fs.readFileSync(imagePath);
+        const originalBase64 = imageBuffer.toString("base64");
+        const ext = path.extname(imagePath).toLowerCase();
+        const mimeType = ext === ".png" ? "image/png" : ext === ".webp" ? "image/webp" : "image/jpeg";
 
-      const baseName = path.basename(testCase.imageName, path.extname(testCase.imageName));
-      const outputFileName = `${baseName}_${testCase.model}_${testCase.backgroundColor.replace("#", "")}.png`;
-      const outputPath = path.join(outputImagesDir, outputFileName);
-      fs.writeFileSync(outputPath, Buffer.from(generatedBase64, "base64"));
+        const clothing: ClothingOptions = {
+          gender: testImage.gender,
+          clothingId: outfit.clothingId,
+          clothingColor: outfit.clothingColor,
+        };
 
-      const judgeResult = await judgeHeadshot(
-        originalBase64,
-        generatedBase64,
-        testCase.backgroundColor,
-        genai
-      );
+        const generatedBase64 = await generateProfessionalHeadshot(
+          originalBase64,
+          mimeType,
+          model,
+          BACKGROUND_COLOR,
+          clothing
+        );
 
-      const testPassed = judgeResult.overallScore >= 3;
-      if (testPassed) passed++;
-      else failed++;
+        const processingTime = Date.now() - startTime;
 
-      await db.insert(evalResults).values({
-        runId,
-        testImageName: `${testCase.imageName}_${testCase.model}_${testCase.backgroundColor}`,
-        modelUsed: testCase.model,
-        backgroundColor: testCase.backgroundColor,
-        professionalismScore: judgeResult.professionalismScore,
-        identityPreservationScore: judgeResult.identityPreservationScore,
-        backgroundAccuracy: judgeResult.backgroundAccuracy,
-        technicalQualityScore: judgeResult.technicalQualityScore,
-        overallScore: judgeResult.overallScore,
-        passed: testPassed,
-        judgeNotes: judgeResult.notes,
-        processingTimeMs: processingTime,
-        errorMessage: null,
-        inputImagePath: testCase.imageName,
-        outputImagePath: outputFileName,
-      });
+        const baseName = path.basename(testImage.fileName, path.extname(testImage.fileName));
+        const outputFileName = `${baseName}_${model}_${outfit.clothingId}.png`;
+        const outputPath = path.join(outputImagesDir, outputFileName);
+        fs.writeFileSync(outputPath, Buffer.from(generatedBase64, "base64"));
 
-      const status = testPassed ? "✅" : "❌";
-      console.log(`   ${status} Score: ${judgeResult.overallScore}/5 (${processingTime}ms)`);
+        const judgeResult = await judgeHeadshot(originalBase64, generatedBase64, genai);
+        const testPassed = judgeResult.overallScore >= 3;
+        if (testPassed) passed++;
+        else failed++;
 
-    } catch (error) {
-      failed++;
-      const processingTime = Date.now() - startTime;
-      const errorMessage = error instanceof Error ? error.message : "Unknown error";
+        await db.insert(evalResults).values({
+          runId,
+          testImageName: `${testImage.fileName}_${model}_${outfit.clothingId}`,
+          modelUsed: model,
+          backgroundColor: BACKGROUND_COLOR,
+          professionalismScore: judgeResult.professionalismScore,
+          identityPreservationScore: judgeResult.identityPreservationScore,
+          backgroundAccuracy: judgeResult.backgroundAccuracy,
+          technicalQualityScore: judgeResult.technicalQualityScore,
+          overallScore: judgeResult.overallScore,
+          passed: testPassed,
+          judgeNotes: judgeResult.notes,
+          processingTimeMs: processingTime,
+          errorMessage: null,
+          inputImagePath: testImage.fileName,
+          outputImagePath: outputFileName,
+        });
 
-      await db.insert(evalResults).values({
-        runId,
-        testImageName: `${testCase.imageName}_${testCase.model}_${testCase.backgroundColor}`,
-        modelUsed: testCase.model,
-        backgroundColor: testCase.backgroundColor,
-        professionalismScore: null,
-        identityPreservationScore: null,
-        backgroundAccuracy: null,
-        technicalQualityScore: null,
-        overallScore: null,
-        passed: false,
-        judgeNotes: null,
-        processingTimeMs: processingTime,
-        errorMessage,
-      });
+        const status = testPassed ? "✅" : "❌";
+        console.log(`   ${status} Score: ${judgeResult.overallScore}/5 (${processingTime}ms)`);
 
-      console.log(`   ❌ Error: ${errorMessage.substring(0, 50)}...`);
-    }
+      } catch (error) {
+        failed++;
+        const processingTime = Date.now() - startTime;
+        const errorMessage = error instanceof Error ? error.message : "Unknown error";
 
-    if (completed < testCases.length) {
-      await new Promise(resolve => setTimeout(resolve, 1000));
+        await db.insert(evalResults).values({
+          runId,
+          testImageName: `${testImage.fileName}_${model}_${outfit.clothingId}`,
+          modelUsed: model,
+          backgroundColor: BACKGROUND_COLOR,
+          professionalismScore: null,
+          identityPreservationScore: null,
+          backgroundAccuracy: null,
+          technicalQualityScore: null,
+          overallScore: null,
+          passed: false,
+          judgeNotes: null,
+          processingTimeMs: processingTime,
+          errorMessage,
+          inputImagePath: testImage.fileName,
+          outputImagePath: null,
+        });
+
+        console.log(`   ❌ Error: ${errorMessage.substring(0, 50)}...`);
+      }
+
+      if (completed < totalTests) {
+        await new Promise(resolve => setTimeout(resolve, 1000));
+      }
     }
   }
 
@@ -298,9 +261,9 @@ async function runEvaluation() {
   console.log("📊 EVALUATION SUMMARY");
   console.log("=".repeat(50));
   console.log(`Run ID: ${runId}`);
-  console.log(`Total Tests: ${testCases.length}`);
-  console.log(`Passed: ${passed} (${((passed / testCases.length) * 100).toFixed(1)}%)`);
-  console.log(`Failed: ${failed} (${((failed / testCases.length) * 100).toFixed(1)}%)`);
+  console.log(`Total Tests: ${totalTests}`);
+  console.log(`Passed: ${passed} (${((passed / totalTests) * 100).toFixed(1)}%)`);
+  console.log(`Failed: ${failed} (${((failed / totalTests) * 100).toFixed(1)}%)`);
   console.log("=".repeat(50));
   console.log("\nView results at: /evals");
 }
