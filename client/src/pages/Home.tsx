@@ -1,10 +1,10 @@
 import { useState } from "react";
 import { Header } from "@/components/Header";
 import { UploadZone } from "@/components/UploadZone";
-import { transformImage } from "@/lib/mock-service";
+import { transformImage, type ModelType } from "@/lib/api";
 import { Button } from "@/components/ui/button";
 import { motion, AnimatePresence } from "framer-motion";
-import { Loader2, Download, RotateCcw } from "lucide-react";
+import { Loader2, Download, RotateCcw, Zap, Sparkles } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import confetti from "canvas-confetti";
 
@@ -12,21 +12,25 @@ export default function Home() {
   const [originalImage, setOriginalImage] = useState<string | null>(null);
   const [processedImage, setProcessedImage] = useState<string | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
+  const [selectedModel, setSelectedModel] = useState<ModelType>("flash");
+  const [pendingFile, setPendingFile] = useState<File | null>(null);
   const { toast } = useToast();
 
   const handleFileSelect = async (file: File) => {
     const objectUrl = URL.createObjectURL(file);
     setOriginalImage(objectUrl);
+    setPendingFile(file);
     setProcessedImage(null);
     setIsProcessing(true);
     
     try {
-      const result = await transformImage(file);
+      const result = await transformImage(file, selectedModel);
       setProcessedImage(result);
       triggerConfetti();
     } catch (error) {
       toast({
         title: "Processing failed",
+        description: error instanceof Error ? error.message : "Unknown error",
         variant: "destructive",
       });
     } finally {
@@ -46,6 +50,7 @@ export default function Home() {
   const handleReset = () => {
     setOriginalImage(null);
     setProcessedImage(null);
+    setPendingFile(null);
     setIsProcessing(false);
   };
 
@@ -70,7 +75,37 @@ export default function Home() {
       <div className="container mx-auto px-6 py-8 max-w-6xl">
         <Header />
 
-        <main className="mt-8 md:mt-12 pb-24">
+        {/* Model Toggle */}
+        <div className="flex justify-center mb-8">
+          <div className="inline-flex items-center bg-white border border-border rounded-lg p-1 studio-shadow">
+            <button
+              onClick={() => setSelectedModel("flash")}
+              disabled={isProcessing}
+              className={`flex items-center gap-2 px-4 py-2 rounded-md text-sm font-medium transition-all ${
+                selectedModel === "flash"
+                  ? "bg-foreground text-background"
+                  : "text-muted-foreground hover:text-foreground"
+              } ${isProcessing ? "opacity-50 cursor-not-allowed" : ""}`}
+            >
+              <Zap className="w-4 h-4" />
+              Flash
+            </button>
+            <button
+              onClick={() => setSelectedModel("pro")}
+              disabled={isProcessing}
+              className={`flex items-center gap-2 px-4 py-2 rounded-md text-sm font-medium transition-all ${
+                selectedModel === "pro"
+                  ? "bg-foreground text-background"
+                  : "text-muted-foreground hover:text-foreground"
+              } ${isProcessing ? "opacity-50 cursor-not-allowed" : ""}`}
+            >
+              <Sparkles className="w-4 h-4" />
+              Pro
+            </button>
+          </div>
+        </div>
+
+        <main className="mt-4 pb-24">
           <AnimatePresence mode="wait">
             {!originalImage ? (
               <UploadZone key="upload" onFileSelect={handleFileSelect} isProcessing={isProcessing} />
@@ -96,7 +131,9 @@ export default function Home() {
                       </div>
                       <div className="space-y-2">
                         <h3 className="text-2xl font-display font-medium text-foreground">Processing</h3>
-                        <p className="text-muted-foreground font-light">Enhancing your portrait...</p>
+                        <p className="text-muted-foreground font-light">
+                          Using {selectedModel === "pro" ? "Gemini 3 Pro" : "Gemini 2.5 Flash"}...
+                        </p>
                       </div>
                     </motion.div>
                   ) : (

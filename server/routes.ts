@@ -1,7 +1,7 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
-import { generateProfessionalHeadshot } from "./gemini-service";
+import { generateProfessionalHeadshot, type ModelType } from "./gemini-service";
 import multer from "multer";
 
 const upload = multer({
@@ -24,10 +24,11 @@ export async function registerRoutes(
 
       const imageBase64 = req.file.buffer.toString("base64");
       const mimeType = req.file.mimetype || "image/jpeg";
+      const modelType = (req.body.model as ModelType) || "flash";
       
-      console.log(`📸 Processing headshot transformation...`);
+      console.log(`📸 Processing headshot transformation with model: ${modelType}`);
       
-      const resultBase64 = await generateProfessionalHeadshot(imageBase64, mimeType);
+      const resultBase64 = await generateProfessionalHeadshot(imageBase64, mimeType, modelType);
       
       await storage.logHeadshotCreation();
       
