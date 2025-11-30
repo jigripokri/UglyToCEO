@@ -510,7 +510,7 @@ export default function Home() {
                 <div className="flex-1 max-w-[140px]">
                   <div className="relative rounded-xl overflow-hidden shadow-sm border border-gray-200/60">
                     <img 
-                      src="/attached_assets/after (1)_1764471091567.png" 
+                      src="/attached_assets/after%20(1)_1764471091567.png" 
                       alt="After - professional headshot" 
                       className="w-full h-[180px] object-cover object-top"
                     />
@@ -552,7 +552,7 @@ export default function Home() {
                 <div className="flex-1 max-w-[140px]">
                   <div className="relative rounded-xl overflow-hidden shadow-sm border border-gray-200/60">
                     <img 
-                      src="/attached_assets/after (2)_1764471091567.png" 
+                      src="/attached_assets/after%20(2)_1764471091567.png" 
                       alt="After - professional headshot" 
                       className="w-full h-[180px] object-cover object-top"
                     />
