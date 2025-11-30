@@ -148,7 +148,7 @@ export default function Home() {
   return (
     <div className="min-h-screen w-full bg-background font-sans text-foreground">
       <div className="container mx-auto px-4 py-4 max-w-7xl">
-        <Header />
+        <Header selectedModel={selectedModel} setSelectedModel={setSelectedModel} isProcessing={isProcessing} />
 
         {/* Main two-column layout - 70/30 split */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 mt-4">
@@ -304,75 +304,34 @@ export default function Home() {
           <div className="lg:col-span-4">
             <div className="space-y-4 lg:sticky lg:top-4">
               
-              {/* Session Settings Card */}
+              {/* Background Card */}
               <div className="bg-gray-50 border border-gray-200 rounded-xl p-4 space-y-4">
                 <h3 className="text-[10px] uppercase tracking-widest text-muted-foreground text-center font-medium">
-                  Session Settings
+                  Background
                 </h3>
 
-                {/* Model Toggle */}
-                <div className="flex justify-center">
-                  <div className="inline-flex items-center bg-white border border-gray-300 rounded-full p-1 shadow-sm">
-                    <button
-                      type="button"
-                      data-testid="toggle-flash"
-                      onClick={() => setSelectedModel("flash")}
-                      disabled={isProcessing}
-                      style={{
-                        backgroundColor: selectedModel === "flash" ? "#1a1a1a" : "transparent",
-                        color: selectedModel === "flash" ? "#ffffff" : "#666666",
-                      }}
-                      className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold transition-all duration-200 ${
-                        isProcessing ? "opacity-50 cursor-not-allowed" : "cursor-pointer"
-                      }`}
-                    >
-                      <Zap className="w-3 h-3" />
-                      Flash
-                    </button>
-                    <button
-                      type="button"
-                      data-testid="toggle-pro"
-                      onClick={() => setSelectedModel("pro")}
-                      disabled={isProcessing}
-                      style={{
-                        backgroundColor: selectedModel === "pro" ? "#1a1a1a" : "transparent",
-                        color: selectedModel === "pro" ? "#ffffff" : "#666666",
-                      }}
-                      className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold transition-all duration-200 ${
-                        isProcessing ? "opacity-50 cursor-not-allowed" : "cursor-pointer"
-                      }`}
-                    >
-                      <Sparkles className="w-3 h-3" />
-                      Pro
-                    </button>
-                  </div>
-                </div>
-
-                {/* Background Color Picker - 3x2 Grid */}
-                <div className="space-y-2">
-                  <p className="text-[10px] uppercase tracking-widest text-muted-foreground text-center">Background</p>
-                  <div className="flex justify-center gap-2">
-                    <div className="flex gap-2">
-                      {BACKGROUND_COLORS.map((color) => (
-                        <button
-                          key={color.hex}
-                          type="button"
-                          data-testid={`color-${color.hex.replace('#', '')}`}
-                          onClick={() => setSelectedColor(color.hex)}
-                          disabled={isProcessing}
-                          title={color.name}
-                          className={`w-7 h-7 rounded-full transition-all duration-200 ${
-                            isProcessing ? "opacity-50 cursor-not-allowed" : "cursor-pointer hover:scale-110"
-                          }`}
-                          style={{
-                            backgroundColor: color.hex,
-                            boxShadow: selectedColor === color.hex 
-                              ? `0 0 0 2px white, 0 0 0 3px ${color.hex}` 
-                              : "0 1px 2px rgba(0,0,0,0.3)",
-                          }}
-                        />
-                      ))}
-                    </div>
+                {/* Background Color Picker - Single Line */}
+                <div className="flex justify-center gap-2">
+                  <div className="flex gap-2">
+                    {BACKGROUND_COLORS.map((color) => (
+                      <button
+                        key={color.hex}
+                        type="button"
+                        data-testid={`color-${color.hex.replace('#', '')}`}
+                        onClick={() => setSelectedColor(color.hex)}
+                        disabled={isProcessing}
+                        title={color.name}
+                        className={`w-7 h-7 rounded-full transition-all duration-200 ${
+                          isProcessing ? "opacity-50 cursor-not-allowed" : "cursor-pointer hover:scale-110"
+                        }`}
+                        style={{
+                          backgroundColor: color.hex,
+                          boxShadow: selectedColor === color.hex 
+                            ? `0 0 0 2px white, 0 0 0 3px ${color.hex}` 
+                            : "0 1px 2px rgba(0,0,0,0.3)",
+                        }}
+                      />
+                    ))}
                   </div>
                 </div>
               </div>
