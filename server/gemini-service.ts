@@ -2,6 +2,9 @@ import { GoogleGenAI } from "@google/genai";
 
 const genAI = new GoogleGenAI({
   apiKey: process.env.AI_INTEGRATIONS_GEMINI_API_KEY || "",
+  httpOptions: {
+    baseUrl: process.env.AI_INTEGRATIONS_GEMINI_BASE_URL,
+  },
 });
 
 export async function generateProfessionalHeadshot(
