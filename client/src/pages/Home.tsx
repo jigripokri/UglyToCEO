@@ -45,6 +45,42 @@ export default function Home() {
   const [clothingId, setClothingId] = useState(DEFAULT_CLOTHING.clothingId);
   const [clothingColor, setClothingColor] = useState(DEFAULT_CLOTHING.clothingColor);
   
+  // Photographer message cycling
+  const [currentMessageIndex, setCurrentMessageIndex] = useState(0);
+  const intervalRef = useRef<NodeJS.Timeout | null>(null);
+  
+  // Cycle through photographer messages every 5 seconds while processing
+  useEffect(() => {
+    if (isProcessing) {
+      // Start with a random message
+      setCurrentMessageIndex(Math.floor(Math.random() * PHOTOGRAPHER_MESSAGES.length));
+      
+      intervalRef.current = setInterval(() => {
+        setCurrentMessageIndex(prev => {
+          let next = Math.floor(Math.random() * PHOTOGRAPHER_MESSAGES.length);
+          // Ensure we don't repeat the same message
+          while (next === prev && PHOTOGRAPHER_MESSAGES.length > 1) {
+            next = Math.floor(Math.random() * PHOTOGRAPHER_MESSAGES.length);
+          }
+          return next;
+        });
+      }, 5000);
+      
+      return () => {
+        if (intervalRef.current) {
+          clearInterval(intervalRef.current);
+          intervalRef.current = null;
+        }
+      };
+    } else {
+      // Clear interval when not processing
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current);
+        intervalRef.current = null;
+      }
+    }
+  }, [isProcessing]);
+  
   const { toast } = useToast();
   
   // Get current clothing options based on gender
