@@ -76,12 +76,17 @@ export default function Home() {
         <Header />
 
         {/* Model Toggle */}
-        <div className="flex justify-center mb-8">
+        <div className="flex justify-center mb-8 relative z-50">
           <div className="inline-flex items-center bg-white border border-border rounded-lg p-1 studio-shadow">
             <button
-              onClick={() => setSelectedModel("flash")}
+              type="button"
+              data-testid="toggle-flash"
+              onClick={() => {
+                console.log("Flash clicked");
+                setSelectedModel("flash");
+              }}
               disabled={isProcessing}
-              className={`flex items-center gap-2 px-4 py-2 rounded-md text-sm font-medium transition-all ${
+              className={`flex items-center gap-2 px-4 py-2 rounded-md text-sm font-medium transition-all cursor-pointer ${
                 selectedModel === "flash"
                   ? "bg-foreground text-background"
                   : "text-muted-foreground hover:text-foreground"
@@ -91,9 +96,14 @@ export default function Home() {
               Flash
             </button>
             <button
-              onClick={() => setSelectedModel("pro")}
+              type="button"
+              data-testid="toggle-pro"
+              onClick={() => {
+                console.log("Pro clicked");
+                setSelectedModel("pro");
+              }}
               disabled={isProcessing}
-              className={`flex items-center gap-2 px-4 py-2 rounded-md text-sm font-medium transition-all ${
+              className={`flex items-center gap-2 px-4 py-2 rounded-md text-sm font-medium transition-all cursor-pointer ${
                 selectedModel === "pro"
                   ? "bg-foreground text-background"
                   : "text-muted-foreground hover:text-foreground"
