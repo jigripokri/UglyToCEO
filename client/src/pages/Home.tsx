@@ -81,10 +81,7 @@ export default function Home() {
             <button
               type="button"
               data-testid="toggle-flash"
-              onClick={() => {
-                console.log("Flash clicked");
-                setSelectedModel("flash");
-              }}
+              onClick={() => setSelectedModel("flash")}
               disabled={isProcessing}
               style={{
                 backgroundColor: selectedModel === "flash" ? "#1a1a1a" : "transparent",
@@ -100,10 +97,7 @@ export default function Home() {
             <button
               type="button"
               data-testid="toggle-pro"
-              onClick={() => {
-                console.log("Pro clicked");
-                setSelectedModel("pro");
-              }}
+              onClick={() => setSelectedModel("pro")}
               disabled={isProcessing}
               style={{
                 backgroundColor: selectedModel === "pro" ? "#1a1a1a" : "transparent",

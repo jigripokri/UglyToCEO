@@ -49,7 +49,15 @@ app.use((req, res, next) => {
     if (path.startsWith("/api")) {
       let logLine = `${req.method} ${path} ${res.statusCode} in ${duration}ms`;
       if (capturedJsonResponse) {
-        logLine += ` :: ${JSON.stringify(capturedJsonResponse)}`;
+        // Sanitize response to avoid logging large base64 data
+        let sanitizedResponse = capturedJsonResponse;
+        if (capturedJsonResponse.image && typeof capturedJsonResponse.image === 'string' && capturedJsonResponse.image.length > 200) {
+          sanitizedResponse = {
+            ...capturedJsonResponse,
+            image: `[base64 image - ${Math.round(capturedJsonResponse.image.length / 1024)} KB]`
+          };
+        }
+        logLine += ` :: ${JSON.stringify(sanitizedResponse)}`;
       }
 
       log(logLine);
