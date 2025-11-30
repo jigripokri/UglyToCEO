@@ -1,7 +1,7 @@
 import { GoogleGenAI } from "@google/genai";
 
 const genAI = new GoogleGenAI({
-  apiKey: process.env.GOOGLE_API_KEY_HH || "",
+  apiKey: process.env.AI_INTEGRATIONS_GEMINI_API_KEY || process.env.GOOGLE_API_KEY_HH || "",
 });
 
 export type ModelType = "flash" | "pro";
