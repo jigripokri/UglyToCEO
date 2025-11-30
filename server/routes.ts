@@ -44,6 +44,9 @@ export async function registerRoutes(
 ): Promise<Server> {
   
   app.post("/api/transform", upload.single("image"), async (req, res) => {
+    const startTime = Date.now();
+    let analyticsLogId: string | null = null;
+    
     try {
       if (!req.file) {
         return res.status(400).json({ error: "No image file provided" });
@@ -53,26 +56,22 @@ export async function registerRoutes(
       const mimeType = req.file.mimetype || "image/jpeg";
       const modelType = (req.body.model as ModelType) || "flash";
       
-      // Validate background color against approved palette
       const requestedBgColor = req.body.backgroundColor || "#562226";
       const backgroundColor = VALID_BACKGROUND_COLORS.includes(requestedBgColor as any) 
         ? requestedBgColor 
         : "#562226";
       
-      // Validate gender
       const requestedGender = req.body.gender || "men";
       const gender: Gender = (requestedGender === "men" || requestedGender === "women") 
         ? requestedGender 
         : "men";
       
-      // Validate clothing ID
       const requestedClothingId = req.body.clothingId || "blazer";
       const validClothingIds = VALID_CLOTHING_IDS[gender];
       const clothingId = validClothingIds.includes(requestedClothingId as any)
         ? requestedClothingId
         : "blazer";
       
-      // Validate clothing color
       const requestedClothingColor = req.body.clothingColor || "#4a4a4a";
       const clothingColor = VALID_CLOTHING_COLORS.includes(requestedClothingColor as any)
         ? requestedClothingColor
@@ -98,20 +97,53 @@ export async function registerRoutes(
         clothing
       );
       
+      const processingTimeMs = Date.now() - startTime;
+      const inputSizeBytes = req.file.buffer.length;
+      const outputSizeBytes = resultBase64.length;
+      
+      const analyticsLog = await storage.logAnalytics({
+        modelUsed: modelType,
+        backgroundColor,
+        success: true,
+        processingTimeMs,
+        inputSizeBytes,
+        outputSizeBytes,
+        errorMessage: null,
+      });
+      analyticsLogId = analyticsLog.id;
+      
       await storage.logHeadshotCreation();
       
       const count = await storage.getHeadshotCount();
-      console.log(`✨ Headshot #${count} created successfully!`);
+      console.log(`✨ Headshot #${count} created successfully in ${processingTimeMs}ms!`);
       
       res.json({
         image: `data:image/png;base64,${resultBase64}`,
         count,
+        analyticsLogId,
       });
     } catch (error) {
+      const processingTimeMs = Date.now() - startTime;
+      const errorMessage = error instanceof Error ? error.message : "Unknown error";
+      
+      try {
+        await storage.logAnalytics({
+          modelUsed: (req.body?.model as ModelType) || "flash",
+          backgroundColor: req.body?.backgroundColor || "#562226",
+          success: false,
+          processingTimeMs,
+          inputSizeBytes: req.file?.buffer?.length || null,
+          outputSizeBytes: null,
+          errorMessage,
+        });
+      } catch (logError) {
+        console.error("Failed to log analytics:", logError);
+      }
+      
       console.error("Error transforming image:", error);
       res.status(500).json({ 
         error: "Failed to transform image",
-        details: error instanceof Error ? error.message : "Unknown error"
+        details: errorMessage
       });
     }
   });
@@ -123,6 +155,43 @@ export async function registerRoutes(
     } catch (error) {
       console.error("Error fetching stats:", error);
       res.status(500).json({ error: "Failed to fetch statistics" });
+    }
+  });
+
+  app.post("/api/analytics/log-download", async (req, res) => {
+    try {
+      const { analyticsLogId } = req.body;
+      if (!analyticsLogId) {
+        return res.status(400).json({ error: "analyticsLogId is required" });
+      }
+      
+      const downloadLog = await storage.logDownload(analyticsLogId);
+      res.json({ success: true, downloadLog });
+    } catch (error) {
+      console.error("Error logging download:", error);
+      res.status(500).json({ error: "Failed to log download" });
+    }
+  });
+
+  app.get("/api/analytics/stats", async (req, res) => {
+    try {
+      const stats = await storage.getAnalyticsStats();
+      res.json(stats);
+    } catch (error) {
+      console.error("Error fetching analytics stats:", error);
+      res.status(500).json({ error: "Failed to fetch analytics statistics" });
+    }
+  });
+
+  app.get("/api/evals/results", async (req, res) => {
+    try {
+      const runId = req.query.runId as string | undefined;
+      const results = await storage.getEvalResults(runId);
+      const latestRunId = await storage.getLatestEvalRunId();
+      res.json({ results, latestRunId });
+    } catch (error) {
+      console.error("Error fetching eval results:", error);
+      res.status(500).json({ error: "Failed to fetch evaluation results" });
     }
   });
 
