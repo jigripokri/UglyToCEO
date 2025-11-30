@@ -48,6 +48,8 @@ export const evalResults = pgTable("eval_results", {
   judgeNotes: text("judge_notes"),
   processingTimeMs: integer("processing_time_ms"),
   errorMessage: text("error_message"),
+  inputImagePath: text("input_image_path"),
+  outputImagePath: text("output_image_path"),
 });
 
 export const insertUserSchema = createInsertSchema(users).pick({

@@ -154,6 +154,11 @@ async function runEvaluation() {
   const genai = new GoogleGenAI({ apiKey });
   const runId = `eval_${Date.now()}`;
   const testImagesDir = path.join(process.cwd(), "eval-images");
+  const outputImagesDir = path.join(process.cwd(), "eval-outputs");
+
+  if (!fs.existsSync(outputImagesDir)) {
+    fs.mkdirSync(outputImagesDir, { recursive: true });
+  }
 
   if (!fs.existsSync(testImagesDir)) {
     console.log(`Creating eval-images directory at ${testImagesDir}`);
@@ -223,6 +228,11 @@ async function runEvaluation() {
 
       const processingTime = Date.now() - startTime;
 
+      const baseName = path.basename(testCase.imageName, path.extname(testCase.imageName));
+      const outputFileName = `${baseName}_${testCase.model}_${testCase.backgroundColor.replace("#", "")}.png`;
+      const outputPath = path.join(outputImagesDir, outputFileName);
+      fs.writeFileSync(outputPath, Buffer.from(generatedBase64, "base64"));
+
       const judgeResult = await judgeHeadshot(
         originalBase64,
         generatedBase64,
@@ -248,6 +258,8 @@ async function runEvaluation() {
         judgeNotes: judgeResult.notes,
         processingTimeMs: processingTime,
         errorMessage: null,
+        inputImagePath: testCase.imageName,
+        outputImagePath: outputFileName,
       });
 
       const status = testPassed ? "✅" : "❌";

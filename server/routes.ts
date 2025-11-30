@@ -3,6 +3,8 @@ import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { generateProfessionalHeadshot, type ModelType, type Gender, type ClothingOptions } from "./gemini-service";
 import multer from "multer";
+import * as fs from "fs";
+import * as path from "path";
 
 const upload = multer({
   storage: multer.memoryStorage(),
@@ -192,6 +194,45 @@ export async function registerRoutes(
     } catch (error) {
       console.error("Error fetching eval results:", error);
       res.status(500).json({ error: "Failed to fetch evaluation results" });
+    }
+  });
+
+  app.get("/api/evals/input-image/:filename", async (req, res) => {
+    try {
+      const filename = req.params.filename;
+      const imagePath = path.join(process.cwd(), "eval-images", filename);
+      
+      if (!fs.existsSync(imagePath)) {
+        return res.status(404).json({ error: "Image not found" });
+      }
+      
+      const ext = path.extname(filename).toLowerCase();
+      const mimeType = ext === ".png" ? "image/png" : ext === ".webp" ? "image/webp" : "image/jpeg";
+      
+      res.setHeader("Content-Type", mimeType);
+      res.setHeader("Cache-Control", "public, max-age=31536000");
+      fs.createReadStream(imagePath).pipe(res);
+    } catch (error) {
+      console.error("Error serving input image:", error);
+      res.status(500).json({ error: "Failed to serve image" });
+    }
+  });
+
+  app.get("/api/evals/output-image/:filename", async (req, res) => {
+    try {
+      const filename = req.params.filename;
+      const imagePath = path.join(process.cwd(), "eval-outputs", filename);
+      
+      if (!fs.existsSync(imagePath)) {
+        return res.status(404).json({ error: "Image not found" });
+      }
+      
+      res.setHeader("Content-Type", "image/png");
+      res.setHeader("Cache-Control", "public, max-age=31536000");
+      fs.createReadStream(imagePath).pipe(res);
+    } catch (error) {
+      console.error("Error serving output image:", error);
+      res.status(500).json({ error: "Failed to serve image" });
     }
   });
 

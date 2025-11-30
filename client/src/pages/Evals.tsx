@@ -21,6 +21,8 @@ interface EvalResult {
   processingTimeMs: number | null;
   errorMessage: string | null;
   createdAt: string;
+  inputImagePath: string | null;
+  outputImagePath: string | null;
 }
 
 interface EvalData {
@@ -56,12 +58,19 @@ function EvalCard({ result }: { result: EvalResult }) {
   const overallColor = score >= 4 ? "text-green-600" : 
     score >= 3 ? "text-yellow-600" : "text-red-600";
 
+  const inputImageUrl = result.inputImagePath 
+    ? `/api/evals/input-image/${encodeURIComponent(result.inputImagePath)}`
+    : null;
+  const outputImageUrl = result.outputImagePath 
+    ? `/api/evals/output-image/${encodeURIComponent(result.outputImagePath)}`
+    : null;
+
   return (
     <Card className="hover:shadow-md transition-shadow" data-testid={`eval-card-${result.id}`}>
       <CardHeader className="pb-2">
         <div className="flex items-center justify-between">
           <CardTitle className="text-sm font-medium text-stone-600 truncate max-w-[150px]" title={result.testImageName}>
-            {result.testImageName}
+            {result.testImageName.split("_").slice(0, -2).join("_")}
           </CardTitle>
           <div className="flex items-center gap-2">
             {result.passed !== null && (
@@ -83,6 +92,41 @@ function EvalCard({ result }: { result: EvalResult }) {
         </div>
       </CardHeader>
       <CardContent className="space-y-4">
+        {(inputImageUrl || outputImageUrl) && (
+          <div className="grid grid-cols-2 gap-2">
+            <div className="space-y-1">
+              <p className="text-xs text-stone-400 text-center">Input</p>
+              {inputImageUrl ? (
+                <img 
+                  src={inputImageUrl} 
+                  alt="Input" 
+                  className="w-full aspect-square object-cover rounded-lg border border-stone-200"
+                  data-testid={`img-input-${result.id}`}
+                />
+              ) : (
+                <div className="w-full aspect-square bg-stone-100 rounded-lg flex items-center justify-center text-stone-400 text-xs">
+                  No image
+                </div>
+              )}
+            </div>
+            <div className="space-y-1">
+              <p className="text-xs text-stone-400 text-center">Output</p>
+              {outputImageUrl ? (
+                <img 
+                  src={outputImageUrl} 
+                  alt="Output" 
+                  className="w-full aspect-square object-cover rounded-lg border border-stone-200"
+                  data-testid={`img-output-${result.id}`}
+                />
+              ) : (
+                <div className="w-full aspect-square bg-stone-100 rounded-lg flex items-center justify-center text-stone-400 text-xs">
+                  No image
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
         <div className="flex items-center justify-center py-2">
           <div className={`text-4xl font-bold ${overallColor}`}>
             {score.toFixed(1)}
