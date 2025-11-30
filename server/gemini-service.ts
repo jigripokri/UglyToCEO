@@ -20,10 +20,7 @@ A professional, high-resolution profile photo, maintaining the exact facial stru
   console.log("📍 Model:", model);
   console.log("📷 Image MIME Type:", mimeType);
   console.log("📏 Image Size:", Math.round(imageBase64.length / 1024), "KB (base64)");
-  console.log("📝 Prompt:");
-  console.log("───────────────────────────────────────────────────────────");
-  console.log(prompt);
-  console.log("───────────────────────────────────────────────────────────");
+  console.log("📝 Prompt:", prompt.substring(0, 100) + "...");
   console.log("⏳ Sending request to Gemini...");
 
   const startTime = Date.now();
@@ -59,7 +56,6 @@ A professional, high-resolution profile photo, maintaining the exact facial stru
 
     if (!response.candidates || response.candidates.length === 0) {
       console.log("❌ No candidates in response");
-      console.log("📋 Full response:", JSON.stringify(response, null, 2));
       throw new Error("No response generated");
     }
 
@@ -73,18 +69,17 @@ A professional, high-resolution profile photo, maintaining the exact facial stru
 
     for (const part of candidate.content.parts) {
       if (part.text) {
-        console.log("📝 Text response:", part.text);
+        console.log("📝 Text response:", part.text.substring(0, 200) + (part.text.length > 200 ? "..." : ""));
       }
       if (part.inlineData && part.inlineData.data) {
         console.log("✅ Image generated successfully!");
-        console.log("📏 Output image size:", Math.round(part.inlineData.data.length / 1024), "KB (base64)");
+        console.log("📏 Output image size:", Math.round(part.inlineData.data.length / 1024), "KB");
         console.log("═══════════════════════════════════════════════════════════");
         return part.inlineData.data;
       }
     }
 
     console.log("❌ No image data found in response parts");
-    console.log("📋 Response parts:", JSON.stringify(candidate.content.parts, null, 2));
     throw new Error("No image data in response");
   } catch (error: any) {
     const elapsed = Date.now() - startTime;
@@ -94,7 +89,6 @@ A professional, high-resolution profile photo, maintaining the exact facial stru
     console.log("⏱️  Time before error:", elapsed, "ms");
     console.log("🔴 Error:", error.message || error);
     if (error.status) console.log("📊 Status:", error.status);
-    if (error.response) console.log("📋 Response:", JSON.stringify(error.response, null, 2));
     throw error;
   }
 }
