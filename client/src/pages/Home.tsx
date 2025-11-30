@@ -77,7 +77,7 @@ export default function Home() {
 
         {/* Model Toggle */}
         <div className="flex justify-center mb-8 relative z-50">
-          <div className="inline-flex items-center bg-white border border-border rounded-lg p-1 studio-shadow">
+          <div className="inline-flex items-center bg-gray-100 border border-gray-300 rounded-full p-1 shadow-md">
             <button
               type="button"
               data-testid="toggle-flash"
@@ -86,11 +86,13 @@ export default function Home() {
                 setSelectedModel("flash");
               }}
               disabled={isProcessing}
-              className={`flex items-center gap-2 px-4 py-2 rounded-md text-sm font-medium transition-all cursor-pointer ${
-                selectedModel === "flash"
-                  ? "bg-foreground text-background"
-                  : "text-muted-foreground hover:text-foreground"
-              } ${isProcessing ? "opacity-50 cursor-not-allowed" : ""}`}
+              style={{
+                backgroundColor: selectedModel === "flash" ? "#1a1a1a" : "transparent",
+                color: selectedModel === "flash" ? "#ffffff" : "#666666",
+              }}
+              className={`flex items-center gap-2 px-5 py-2.5 rounded-full text-sm font-semibold transition-all duration-200 cursor-pointer ${
+                isProcessing ? "opacity-50 cursor-not-allowed" : ""
+              }`}
             >
               <Zap className="w-4 h-4" />
               Flash
@@ -103,11 +105,13 @@ export default function Home() {
                 setSelectedModel("pro");
               }}
               disabled={isProcessing}
-              className={`flex items-center gap-2 px-4 py-2 rounded-md text-sm font-medium transition-all cursor-pointer ${
-                selectedModel === "pro"
-                  ? "bg-foreground text-background"
-                  : "text-muted-foreground hover:text-foreground"
-              } ${isProcessing ? "opacity-50 cursor-not-allowed" : ""}`}
+              style={{
+                backgroundColor: selectedModel === "pro" ? "#1a1a1a" : "transparent",
+                color: selectedModel === "pro" ? "#ffffff" : "#666666",
+              }}
+              className={`flex items-center gap-2 px-5 py-2.5 rounded-full text-sm font-semibold transition-all duration-200 cursor-pointer ${
+                isProcessing ? "opacity-50 cursor-not-allowed" : ""
+              }`}
             >
               <Sparkles className="w-4 h-4" />
               Pro
