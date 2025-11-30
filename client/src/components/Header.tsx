@@ -63,7 +63,7 @@ export function Header({ selectedModel, setSelectedModel, isProcessing, gender }
       <div className="flex flex-col items-center justify-center py-6 md:py-10 space-y-4 relative z-10">
         
         {/* V-Formation Cards */}
-        <div className="relative flex flex-col md:flex-row items-center justify-center gap-2 md:gap-0">
+        <div className="relative flex flex-col md:flex-row items-center justify-center gap-1 md:gap-0">
           {/* Before Card */}
           <AnimatePresence mode="wait">
             <motion.div
@@ -77,7 +77,7 @@ export function Header({ selectedModel, setSelectedModel, isProcessing, gender }
                 damping: 20,
                 delay: 0.1
               }}
-              className="relative w-[100px] h-[130px] md:w-[120px] md:h-[160px] rounded-xl overflow-hidden shadow-lg md:-mr-4 z-10"
+              className="relative w-[100px] h-[130px] md:w-[120px] md:h-[160px] rounded-xl overflow-hidden shadow-lg md:-mr-8 z-10"
               style={{
                 boxShadow: "0 8px 32px rgba(0,0,0,0.15), 0 2px 8px rgba(0,0,0,0.1)"
               }}
@@ -99,16 +99,6 @@ export function Header({ selectedModel, setSelectedModel, isProcessing, gender }
             </motion.div>
           </AnimatePresence>
 
-          {/* Arrow - Desktop (horizontal) */}
-          <div className="hidden md:block relative z-0 mx-2">
-            <TransformArrow className="opacity-60" />
-          </div>
-
-          {/* Arrow - Mobile (vertical) */}
-          <div className="block md:hidden relative z-0 my-1">
-            <TransformArrow vertical className="opacity-60" />
-          </div>
-
           {/* After Card */}
           <AnimatePresence mode="wait">
             <motion.div
@@ -122,7 +112,7 @@ export function Header({ selectedModel, setSelectedModel, isProcessing, gender }
                 damping: 20,
                 delay: 0.2
               }}
-              className="relative w-[100px] h-[130px] md:w-[120px] md:h-[160px] rounded-xl overflow-hidden shadow-lg md:-ml-4 z-10"
+              className="relative w-[100px] h-[130px] md:w-[120px] md:h-[160px] rounded-xl overflow-hidden shadow-lg md:-ml-8 z-10"
               style={{
                 boxShadow: "0 8px 32px rgba(0,0,0,0.15), 0 2px 8px rgba(0,0,0,0.1)"
               }}
