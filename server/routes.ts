@@ -11,6 +11,15 @@ const upload = multer({
   },
 });
 
+const VALID_BACKGROUND_COLORS = [
+  "#562226", // Deep Burgundy
+  "#1a2744", // Navy Blue
+  "#2d2d2d", // Charcoal Gray
+  "#1e3a2f", // Forest Green
+  "#8b7355", // Warm Taupe
+  "#0a0a0a", // Classic Black
+] as const;
+
 export async function registerRoutes(
   httpServer: Server,
   app: Express
@@ -25,7 +34,12 @@ export async function registerRoutes(
       const imageBase64 = req.file.buffer.toString("base64");
       const mimeType = req.file.mimetype || "image/jpeg";
       const modelType = (req.body.model as ModelType) || "flash";
-      const backgroundColor = req.body.backgroundColor || "#562226";
+      
+      // Validate background color against approved palette
+      const requestedColor = req.body.backgroundColor || "#562226";
+      const backgroundColor = VALID_BACKGROUND_COLORS.includes(requestedColor) 
+        ? requestedColor 
+        : "#562226";
       
       console.log(`📸 Processing headshot transformation with model: ${modelType}, background: ${backgroundColor}`);
       
