@@ -81,7 +81,7 @@ export function Header({ selectedModel, setSelectedModel, isProcessing, gender }
                 damping: 20,
                 delay: 0.1
               }}
-              className="relative w-[90px] h-[120px] md:w-[120px] md:h-[160px] rounded-xl overflow-hidden shadow-lg mr-1 md:mr-2 z-10"
+              className="relative w-[90px] h-[120px] md:w-[120px] md:h-[160px] rounded-xl overflow-hidden shadow-lg -mr-0.5 md:-mr-1 z-10"
               style={{
                 boxShadow: "0 8px 32px rgba(0,0,0,0.15), 0 2px 8px rgba(0,0,0,0.1)"
               }}
@@ -116,7 +116,7 @@ export function Header({ selectedModel, setSelectedModel, isProcessing, gender }
                 damping: 20,
                 delay: 0.2
               }}
-              className="relative w-[90px] h-[120px] md:w-[120px] md:h-[160px] rounded-xl overflow-hidden shadow-lg ml-1 md:ml-2 z-10"
+              className="relative w-[90px] h-[120px] md:w-[120px] md:h-[160px] rounded-xl overflow-hidden shadow-lg -ml-0.5 md:-ml-1 z-10"
               style={{
                 boxShadow: "0 8px 32px rgba(0,0,0,0.15), 0 2px 8px rgba(0,0,0,0.1)"
               }}
