@@ -66,6 +66,17 @@ export function Header({ selectedModel, setSelectedModel, isProcessing, gender }
       {/* Main Header Content */}
       <div className="flex flex-col items-center justify-center py-6 md:py-10 space-y-4 relative z-10">
         
+        {/* Title */}
+        <motion.h1 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.3, duration: 0.6 }}
+          className="text-3xl md:text-5xl lg:text-6xl font-medium tracking-tight leading-tight text-foreground text-center"
+          style={{ fontFamily: "'Cormorant Garamond', serif" }}
+        >
+          Headshot Hero
+        </motion.h1>
+
         {/* V-Formation Cards */}
         <div className="relative flex flex-row items-center justify-center gap-0">
           {/* Before Card */}
@@ -139,18 +150,8 @@ export function Header({ selectedModel, setSelectedModel, isProcessing, gender }
           </AnimatePresence>
         </div>
 
-        {/* Title and Tagline */}
-        <div className="text-center space-y-2 md:space-y-3 max-w-2xl mx-auto pt-1 md:pt-2 px-4">
-          <motion.h1 
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.3, duration: 0.6 }}
-            className="text-3xl md:text-5xl lg:text-6xl font-medium tracking-tight leading-tight text-foreground"
-            style={{ fontFamily: "'Cormorant Garamond', serif" }}
-          >
-            HeadShot Hero
-          </motion.h1>
-          
+        {/* Divider and Tagline */}
+        <div className="text-center space-y-2 md:space-y-3 max-w-2xl mx-auto px-4">
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
