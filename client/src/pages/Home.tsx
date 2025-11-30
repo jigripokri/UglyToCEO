@@ -466,7 +466,7 @@ export default function Home() {
           </div>
         </div>
 
-        <footer className="text-center py-6 mt-8 border-t border-border">
+        <footer className="text-center py-4 mt-4 border-t border-border">
           <p className="text-xs uppercase tracking-widest text-muted-foreground/50">
             Powered by AI
           </p>
