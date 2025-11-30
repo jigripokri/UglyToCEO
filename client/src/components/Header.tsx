@@ -21,8 +21,8 @@ export function Header({ selectedModel, setSelectedModel, isProcessing, gender }
 
   return (
     <header className="relative">
-      {/* Model Toggle - Top Right (Hidden for now - re-enable later) */}
-      <div className="absolute top-0 right-0 z-20 hidden">
+      {/* Model Toggle - Top Right */}
+      <div className="absolute top-0 right-0 z-20">
         <div className="inline-flex items-center bg-white border border-gray-300 rounded-full p-1 shadow-sm">
           <button
             type="button"
