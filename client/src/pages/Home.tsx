@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { Header } from "@/components/Header";
-import { UploadZone } from "@/components/UploadZone";
 import { 
   transformImage, 
   type ModelType, 
@@ -12,10 +11,12 @@ import {
   WOMEN_CLOTHING,
   DEFAULT_CLOTHING,
 } from "@/lib/api";
+import { ClothingIconMap } from "@/components/ClothingIcons";
 import { Button } from "@/components/ui/button";
 import { motion, AnimatePresence } from "framer-motion";
-import { Loader2, Download, RotateCcw, Zap, Sparkles, ChevronDown, ChevronUp, RotateCcw as ResetIcon } from "lucide-react";
+import { Loader2, Download, RotateCcw, Zap, Sparkles, Upload } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { useDropzone } from "react-dropzone";
 import confetti from "canvas-confetti";
 
 export default function Home() {
@@ -24,8 +25,6 @@ export default function Home() {
   const [isProcessing, setIsProcessing] = useState(false);
   const [selectedModel, setSelectedModel] = useState<ModelType>("flash");
   const [selectedColor, setSelectedColor] = useState<BackgroundColor>("#562226");
-  const [pendingFile, setPendingFile] = useState<File | null>(null);
-  const [outfitExpanded, setOutfitExpanded] = useState(false);
   
   // Clothing state
   const [gender, setGender] = useState<Gender>(DEFAULT_CLOTHING.gender);
@@ -37,12 +36,6 @@ export default function Home() {
   // Get current clothing options based on gender
   const clothingOptions = gender === "men" ? MEN_CLOTHING : WOMEN_CLOTHING;
   const selectedClothing = clothingOptions.find(c => c.id === clothingId) || clothingOptions[0];
-  
-  // Check if current selection is default
-  const isDefaultSelection = 
-    gender === DEFAULT_CLOTHING.gender && 
-    clothingId === DEFAULT_CLOTHING.clothingId && 
-    clothingColor === DEFAULT_CLOTHING.clothingColor;
 
   const handleGenderChange = (newGender: Gender) => {
     setGender(newGender);
@@ -60,16 +53,9 @@ export default function Home() {
     }
   };
 
-  const handleResetToDefault = () => {
-    setGender(DEFAULT_CLOTHING.gender);
-    setClothingId(DEFAULT_CLOTHING.clothingId);
-    setClothingColor(DEFAULT_CLOTHING.clothingColor);
-  };
-
   const handleFileSelect = async (file: File) => {
     const objectUrl = URL.createObjectURL(file);
     setOriginalImage(objectUrl);
-    setPendingFile(file);
     setProcessedImage(null);
     setIsProcessing(true);
     
@@ -89,6 +75,8 @@ export default function Home() {
         description: error instanceof Error ? error.message : "Unknown error",
         variant: "destructive",
       });
+      // Reset on error
+      setOriginalImage(null);
     } finally {
       setIsProcessing(false);
     }
@@ -106,7 +94,6 @@ export default function Home() {
   const handleReset = () => {
     setOriginalImage(null);
     setProcessedImage(null);
-    setPendingFile(null);
     setIsProcessing(false);
   };
 
@@ -126,328 +113,333 @@ export default function Home() {
     }
   };
 
+  const { getRootProps, getInputProps, isDragActive } = useDropzone({
+    onDrop: (acceptedFiles) => {
+      if (acceptedFiles.length > 0) {
+        handleFileSelect(acceptedFiles[0]);
+      }
+    },
+    accept: {
+      'image/*': ['.jpeg', '.jpg', '.png', '.webp']
+    },
+    maxFiles: 1,
+    disabled: isProcessing,
+  });
+
+  // Model toggle component for header
+  const ModelToggle = (
+    <div className="inline-flex items-center bg-gray-100 border border-gray-300 rounded-full p-1 shadow-sm">
+      <button
+        type="button"
+        data-testid="toggle-flash"
+        onClick={() => setSelectedModel("flash")}
+        disabled={isProcessing}
+        style={{
+          backgroundColor: selectedModel === "flash" ? "#1a1a1a" : "transparent",
+          color: selectedModel === "flash" ? "#ffffff" : "#666666",
+        }}
+        className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold transition-all duration-200 ${
+          isProcessing ? "opacity-50 cursor-not-allowed" : "cursor-pointer"
+        }`}
+      >
+        <Zap className="w-3 h-3" />
+        Flash
+      </button>
+      <button
+        type="button"
+        data-testid="toggle-pro"
+        onClick={() => setSelectedModel("pro")}
+        disabled={isProcessing}
+        style={{
+          backgroundColor: selectedModel === "pro" ? "#1a1a1a" : "transparent",
+          color: selectedModel === "pro" ? "#ffffff" : "#666666",
+        }}
+        className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold transition-all duration-200 ${
+          isProcessing ? "opacity-50 cursor-not-allowed" : "cursor-pointer"
+        }`}
+      >
+        <Sparkles className="w-3 h-3" />
+        Pro
+      </button>
+    </div>
+  );
+
   return (
     <div className="min-h-screen w-full bg-background font-sans text-foreground">
-      <div className="container mx-auto px-6 py-8 max-w-6xl">
-        <Header />
+      <div className="container mx-auto px-4 py-4 max-w-7xl">
+        <Header rightContent={ModelToggle} />
 
-        {/* Model Toggle */}
-        <div className="flex justify-center mb-8 relative z-50">
-          <div className="inline-flex items-center bg-gray-100 border border-gray-300 rounded-full p-1 shadow-md">
-            <button
-              type="button"
-              data-testid="toggle-flash"
-              onClick={() => setSelectedModel("flash")}
-              disabled={isProcessing}
-              style={{
-                backgroundColor: selectedModel === "flash" ? "#1a1a1a" : "transparent",
-                color: selectedModel === "flash" ? "#ffffff" : "#666666",
-              }}
-              className={`flex items-center gap-2 px-5 py-2.5 rounded-full text-sm font-semibold transition-all duration-200 cursor-pointer ${
-                isProcessing ? "opacity-50 cursor-not-allowed" : ""
-              }`}
-            >
-              <Zap className="w-4 h-4" />
-              Flash
-            </button>
-            <button
-              type="button"
-              data-testid="toggle-pro"
-              onClick={() => setSelectedModel("pro")}
-              disabled={isProcessing}
-              style={{
-                backgroundColor: selectedModel === "pro" ? "#1a1a1a" : "transparent",
-                color: selectedModel === "pro" ? "#ffffff" : "#666666",
-              }}
-              className={`flex items-center gap-2 px-5 py-2.5 rounded-full text-sm font-semibold transition-all duration-200 cursor-pointer ${
-                isProcessing ? "opacity-50 cursor-not-allowed" : ""
-              }`}
-            >
-              <Sparkles className="w-4 h-4" />
-              Pro
-            </button>
-          </div>
-        </div>
-
-        {/* Background Color Picker */}
-        <div className="flex flex-col items-center mb-6">
-          <p className="text-xs uppercase tracking-widest text-muted-foreground mb-3">Background</p>
-          <div className="flex items-center gap-3">
-            {BACKGROUND_COLORS.map((color) => (
-              <button
-                key={color.hex}
-                type="button"
-                data-testid={`color-${color.hex.replace('#', '')}`}
-                onClick={() => setSelectedColor(color.hex)}
-                disabled={isProcessing}
-                title={color.name}
-                className={`w-8 h-8 rounded-full transition-all duration-200 ${
-                  isProcessing ? "opacity-50 cursor-not-allowed" : "cursor-pointer hover:scale-110"
-                }`}
-                style={{
-                  backgroundColor: color.hex,
-                  boxShadow: selectedColor === color.hex 
-                    ? `0 0 0 2px white, 0 0 0 4px ${color.hex}` 
-                    : "0 1px 3px rgba(0,0,0,0.3)",
-                }}
-              />
-            ))}
-          </div>
-        </div>
-
-        {/* Collapsible Outfit Customization Panel */}
-        <div className="flex flex-col items-center mb-8">
-          <button
-            type="button"
-            data-testid="toggle-outfit-panel"
-            onClick={() => setOutfitExpanded(!outfitExpanded)}
-            disabled={isProcessing}
-            className={`flex items-center gap-2 px-4 py-2 text-sm text-muted-foreground hover:text-foreground transition-colors ${
-              isProcessing ? "opacity-50 cursor-not-allowed" : "cursor-pointer"
-            }`}
-          >
-            {outfitExpanded ? (
-              <ChevronUp className="w-4 h-4" />
-            ) : (
-              <ChevronDown className="w-4 h-4" />
-            )}
-            <span className="uppercase tracking-widest text-xs">
-              Customize Outfit
-              {!outfitExpanded && !isDefaultSelection && (
-                <span className="ml-2 text-foreground/70">• Customized</span>
-              )}
-            </span>
-          </button>
+        {/* Main two-column layout */}
+        <div className="grid grid-cols-1 lg:grid-cols-5 gap-6 mt-4">
           
-          <AnimatePresence>
-            {outfitExpanded && (
-              <motion.div
-                initial={{ height: 0, opacity: 0 }}
-                animate={{ height: "auto", opacity: 1 }}
-                exit={{ height: 0, opacity: 0 }}
-                transition={{ duration: 0.2 }}
-                className="overflow-hidden w-full max-w-2xl"
-              >
-                <div className="bg-gray-50 border border-gray-200 rounded-lg p-6 mt-3 space-y-6">
-                  {/* Gender Toggle */}
-                  <div className="flex items-center justify-center gap-4">
-                    <div className="inline-flex items-center bg-gray-100 border border-gray-300 rounded-full p-1 shadow-md">
-                      <button
-                        type="button"
-                        data-testid="gender-men"
-                        onClick={() => handleGenderChange("men")}
-                        disabled={isProcessing}
-                        style={{
-                          backgroundColor: gender === "men" ? "#1a1a1a" : "transparent",
-                          color: gender === "men" ? "#ffffff" : "#666666",
-                        }}
-                        className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-semibold transition-all duration-200 ${
-                          isProcessing ? "opacity-50 cursor-not-allowed" : "cursor-pointer"
-                        }`}
-                      >
-                        👔 Men
-                      </button>
-                      <button
-                        type="button"
-                        data-testid="gender-women"
-                        onClick={() => handleGenderChange("women")}
-                        disabled={isProcessing}
-                        style={{
-                          backgroundColor: gender === "women" ? "#1a1a1a" : "transparent",
-                          color: gender === "women" ? "#ffffff" : "#666666",
-                        }}
-                        className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-semibold transition-all duration-200 ${
-                          isProcessing ? "opacity-50 cursor-not-allowed" : "cursor-pointer"
-                        }`}
-                      >
-                        👗 Women
-                      </button>
-                    </div>
-                    
-                    {!isDefaultSelection && (
-                      <button
-                        type="button"
-                        data-testid="reset-outfit"
-                        onClick={handleResetToDefault}
-                        disabled={isProcessing}
-                        className={`flex items-center gap-1 px-3 py-1.5 text-xs text-muted-foreground hover:text-foreground border border-gray-300 rounded-full transition-colors ${
-                          isProcessing ? "opacity-50 cursor-not-allowed" : "cursor-pointer"
-                        }`}
-                      >
-                        <ResetIcon className="w-3 h-3" />
-                        Reset
-                      </button>
-                    )}
-                  </div>
+          {/* Left Column - Preview Area (60%) */}
+          <div className="lg:col-span-3 space-y-4">
+            {/* Background Color Picker */}
+            <div className="flex items-center justify-center gap-3 py-2">
+              <span className="text-xs uppercase tracking-widest text-muted-foreground">Background</span>
+              <div className="flex items-center gap-2">
+                {BACKGROUND_COLORS.map((color) => (
+                  <button
+                    key={color.hex}
+                    type="button"
+                    data-testid={`color-${color.hex.replace('#', '')}`}
+                    onClick={() => setSelectedColor(color.hex)}
+                    disabled={isProcessing}
+                    title={color.name}
+                    className={`w-6 h-6 rounded-full transition-all duration-200 ${
+                      isProcessing ? "opacity-50 cursor-not-allowed" : "cursor-pointer hover:scale-110"
+                    }`}
+                    style={{
+                      backgroundColor: color.hex,
+                      boxShadow: selectedColor === color.hex 
+                        ? `0 0 0 2px white, 0 0 0 3px ${color.hex}` 
+                        : "0 1px 2px rgba(0,0,0,0.3)",
+                    }}
+                  />
+                ))}
+              </div>
+            </div>
 
-                  {/* Clothing Cards */}
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-                    {clothingOptions.map((clothing) => (
-                      <button
-                        key={clothing.id}
-                        type="button"
-                        data-testid={`clothing-${clothing.id}`}
-                        onClick={() => handleClothingSelect(clothing.id)}
-                        disabled={isProcessing}
-                        className={`group relative bg-white border-2 rounded-lg p-4 transition-all duration-200 ${
-                          clothingId === clothing.id 
-                            ? "border-foreground shadow-md" 
-                            : "border-gray-200 hover:border-gray-400"
-                        } ${isProcessing ? "opacity-50 cursor-not-allowed" : "cursor-pointer"}`}
-                      >
-                        <div className="text-center space-y-2">
-                          <span className="text-3xl block">{clothing.icon}</span>
-                          <span className="text-xs font-medium text-foreground block">{clothing.name}</span>
-                        </div>
-                        
-                        {/* Color swatches for selected clothing */}
-                        {clothingId === clothing.id && (
-                          <div className="flex justify-center gap-2 mt-3 pt-3 border-t border-gray-100">
-                            {clothing.colors.map((color) => (
-                              <button
-                                key={color.hex}
-                                type="button"
-                                data-testid={`clothing-color-${color.hex.replace('#', '')}`}
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  setClothingColor(color.hex);
-                                }}
-                                disabled={isProcessing}
-                                title={color.name}
-                                className={`w-5 h-5 rounded-full transition-all duration-200 ${
-                                  isProcessing ? "cursor-not-allowed" : "cursor-pointer hover:scale-110"
-                                }`}
-                                style={{
-                                  backgroundColor: color.hex,
-                                  boxShadow: clothingColor === color.hex 
-                                    ? `0 0 0 2px white, 0 0 0 3px ${color.hex}` 
-                                    : "0 1px 2px rgba(0,0,0,0.2)",
-                                }}
-                              />
-                            ))}
-                          </div>
-                        )}
-                      </button>
-                    ))}
-                  </div>
-                  
-                  {/* Current Selection Summary */}
-                  <div className="text-center text-xs text-muted-foreground">
-                    Selected: {selectedClothing.name} in {selectedClothing.colors.find(c => c.hex === clothingColor)?.name || "default"}
-                  </div>
-                </div>
-              </motion.div>
-            )}
-          </AnimatePresence>
-        </div>
-
-        <main className="mt-4 pb-24">
-          <AnimatePresence mode="wait">
-            {!originalImage ? (
-              <UploadZone key="upload" onFileSelect={handleFileSelect} isProcessing={isProcessing} />
-            ) : (
-              <motion.div
-                key="result"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                className="space-y-12"
-              >
-                <div className="flex flex-col items-center justify-center">
-                  {isProcessing ? (
-                    <motion.div 
-                      initial={{ opacity: 0 }}
-                      animate={{ opacity: 1 }}
-                      className="bg-white border border-border rounded-lg p-16 text-center space-y-8 max-w-md w-full studio-shadow"
+            {/* Preview Area */}
+            <div className="bg-white border border-gray-200 rounded-xl overflow-hidden shadow-sm">
+              <AnimatePresence mode="wait">
+                {!originalImage ? (
+                  /* Upload Zone */
+                  <motion.div
+                    key="upload"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                  >
+                    <div
+                      {...getRootProps()}
+                      className={`aspect-[4/3] flex flex-col items-center justify-center cursor-pointer transition-colors ${
+                        isDragActive ? "bg-gray-100" : "bg-gray-50 hover:bg-gray-100"
+                      } ${isProcessing ? "pointer-events-none opacity-50" : ""}`}
                     >
-                      <div className="relative w-20 h-20 mx-auto">
-                        <div className="absolute inset-0 bg-secondary rounded-full" />
-                        <div className="relative w-full h-full flex items-center justify-center">
-                           <Loader2 className="w-8 h-8 text-foreground animate-spin" strokeWidth={1.5} />
+                      <input {...getInputProps()} data-testid="file-input" />
+                      <div className="text-center space-y-4 p-8">
+                        <div className="w-16 h-16 mx-auto rounded-full bg-gray-200 flex items-center justify-center">
+                          <Upload className="w-8 h-8 text-gray-500" strokeWidth={1.5} />
+                        </div>
+                        <div>
+                          <p className="text-lg font-medium text-foreground">
+                            {isDragActive ? "Drop your photo here" : "Drop your photo here"}
+                          </p>
+                          <p className="text-sm text-muted-foreground mt-1">or click to browse</p>
                         </div>
                       </div>
-                      <div className="space-y-2">
-                        <h3 className="text-2xl font-display font-medium text-foreground">Processing</h3>
-                        <p className="text-muted-foreground font-light">
-                          Using {selectedModel === "pro" ? "Gemini 3 Pro" : "Gemini 2.5 Flash"}...
-                        </p>
+                    </div>
+                  </motion.div>
+                ) : (
+                  /* Before/After Split View */
+                  <motion.div
+                    key="preview"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    className="grid grid-cols-2 divide-x divide-gray-200"
+                  >
+                    {/* Before Pane */}
+                    <div className="relative">
+                      <div className="absolute top-3 left-3 z-10">
+                        <span className="text-[10px] uppercase tracking-widest text-white/80 bg-black/40 px-2 py-1 rounded">
+                          Before
+                        </span>
                       </div>
-                    </motion.div>
-                  ) : (
-                    <div className="w-full flex flex-col items-center gap-12">
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-8 w-full max-w-4xl">
-                        {/* Before Image */}
-                        <motion.div
-                          initial={{ opacity: 0, x: -20 }}
-                          animate={{ opacity: 1, x: 0 }}
-                          transition={{ duration: 0.5 }}
-                          className="space-y-4"
-                        >
-                          <p className="text-sm uppercase tracking-widest text-muted-foreground text-center">Before</p>
-                          <div className="bg-white rounded-lg overflow-hidden studio-shadow-lg">
-                            <div className="aspect-[4/5] bg-secondary">
-                              <img 
-                                src={originalImage} 
-                                alt="Before" 
-                                className="w-full h-full object-cover"
-                              />
-                            </div>
-                          </div>
-                        </motion.div>
-
-                        {/* After Image */}
-                        <motion.div
-                          initial={{ opacity: 0, x: 20 }}
-                          animate={{ opacity: 1, x: 0 }}
-                          transition={{ duration: 0.5, delay: 0.15 }}
-                          className="space-y-4"
-                        >
-                          <p className="text-sm uppercase tracking-widest text-muted-foreground text-center">After</p>
-                          <div className="bg-white rounded-lg overflow-hidden studio-shadow-lg">
-                            <div className="aspect-[4/5] bg-secondary">
-                              <img 
-                                src={processedImage!} 
-                                alt="After" 
-                                className="w-full h-full object-cover"
-                              />
-                            </div>
-                          </div>
-                        </motion.div>
-                      </div>
-                      
-                      <motion.div 
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: 0.4 }}
-                        className="flex flex-col sm:flex-row items-center gap-4"
+                      <motion.div
+                        initial={{ opacity: 0, scale: 0.95 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        transition={{ duration: 0.3 }}
+                        className="aspect-[4/5]"
                       >
-                        <Button 
-                          onClick={handleDownload}
-                          size="lg"
-                          className="h-12 px-8 rounded-md text-sm font-medium bg-foreground hover:bg-foreground/90 text-background tracking-wide uppercase"
-                        >
-                          <Download className="mr-2 h-4 w-4" strokeWidth={1.5} />
-                          Download
-                        </Button>
-                        
-                        <Button 
-                          variant="outline" 
-                          onClick={handleReset}
-                          size="lg"
-                          className="h-12 px-8 rounded-md text-sm font-medium border-border hover:bg-secondary tracking-wide uppercase"
-                        >
-                          <RotateCcw className="mr-2 h-4 w-4" strokeWidth={1.5} />
-                          New Photo
-                        </Button>
+                        <img 
+                          src={originalImage} 
+                          alt="Before" 
+                          className="w-full h-full object-cover"
+                        />
                       </motion.div>
                     </div>
-                  )}
-                </div>
+
+                    {/* After Pane */}
+                    <div className="relative">
+                      <div className="absolute top-3 left-3 z-10">
+                        <span className="text-[10px] uppercase tracking-widest text-white/80 bg-black/40 px-2 py-1 rounded">
+                          After
+                        </span>
+                      </div>
+                      <div className="aspect-[4/5] bg-gray-100">
+                        {isProcessing ? (
+                          /* Spinner Overlay */
+                          <motion.div
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            className="w-full h-full flex flex-col items-center justify-center space-y-4"
+                          >
+                            <div className="relative w-16 h-16">
+                              <div className="absolute inset-0 bg-gray-200 rounded-full" />
+                              <div className="relative w-full h-full flex items-center justify-center">
+                                <Loader2 className="w-8 h-8 text-gray-600 animate-spin" strokeWidth={1.5} />
+                              </div>
+                            </div>
+                            <p className="text-sm text-muted-foreground">
+                              {selectedModel === "pro" ? "Using Gemini Pro..." : "Processing..."}
+                            </p>
+                          </motion.div>
+                        ) : processedImage ? (
+                          <motion.img
+                            initial={{ opacity: 0, scale: 0.95 }}
+                            animate={{ opacity: 1, scale: 1 }}
+                            transition={{ duration: 0.3 }}
+                            src={processedImage}
+                            alt="After"
+                            className="w-full h-full object-cover"
+                          />
+                        ) : null}
+                      </div>
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
+
+            {/* Action Buttons */}
+            {processedImage && !isProcessing && (
+              <motion.div 
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="flex items-center justify-center gap-3"
+              >
+                <Button 
+                  onClick={handleDownload}
+                  size="sm"
+                  className="h-10 px-6 rounded-md text-xs font-medium bg-foreground hover:bg-foreground/90 text-background tracking-wide uppercase"
+                  data-testid="button-download"
+                >
+                  <Download className="mr-2 h-4 w-4" strokeWidth={1.5} />
+                  Download
+                </Button>
+                
+                <Button 
+                  variant="outline" 
+                  onClick={handleReset}
+                  size="sm"
+                  className="h-10 px-6 rounded-md text-xs font-medium border-border hover:bg-secondary tracking-wide uppercase"
+                  data-testid="button-new-photo"
+                >
+                  <RotateCcw className="mr-2 h-4 w-4" strokeWidth={1.5} />
+                  New Photo
+                </Button>
               </motion.div>
             )}
-          </AnimatePresence>
-        </main>
+          </div>
 
-        <footer className="text-center py-8 border-t border-border">
+          {/* Right Column - Outfit Customization (40%) */}
+          <div className="lg:col-span-2">
+            <div className="bg-gray-50 border border-gray-200 rounded-xl p-5 space-y-5 sticky top-4">
+              <h3 className="text-xs uppercase tracking-widest text-muted-foreground text-center">
+                Customize Outfit
+              </h3>
+
+              {/* Gender Toggle */}
+              <div className="flex justify-center">
+                <div className="inline-flex items-center bg-white border border-gray-300 rounded-full p-1 shadow-sm">
+                  <button
+                    type="button"
+                    data-testid="gender-men"
+                    onClick={() => handleGenderChange("men")}
+                    disabled={isProcessing}
+                    style={{
+                      backgroundColor: gender === "men" ? "#1a1a1a" : "transparent",
+                      color: gender === "men" ? "#ffffff" : "#666666",
+                    }}
+                    className={`flex items-center gap-1.5 px-4 py-2 rounded-full text-sm font-semibold transition-all duration-200 ${
+                      isProcessing ? "opacity-50 cursor-not-allowed" : "cursor-pointer"
+                    }`}
+                  >
+                    Men
+                  </button>
+                  <button
+                    type="button"
+                    data-testid="gender-women"
+                    onClick={() => handleGenderChange("women")}
+                    disabled={isProcessing}
+                    style={{
+                      backgroundColor: gender === "women" ? "#1a1a1a" : "transparent",
+                      color: gender === "women" ? "#ffffff" : "#666666",
+                    }}
+                    className={`flex items-center gap-1.5 px-4 py-2 rounded-full text-sm font-semibold transition-all duration-200 ${
+                      isProcessing ? "opacity-50 cursor-not-allowed" : "cursor-pointer"
+                    }`}
+                  >
+                    Women
+                  </button>
+                </div>
+              </div>
+
+              {/* Clothing Cards Grid */}
+              <div className="grid grid-cols-2 gap-3">
+                {clothingOptions.map((clothing) => {
+                  const IconComponent = ClothingIconMap[clothing.id];
+                  const isSelected = clothingId === clothing.id;
+                  return (
+                    <div
+                      key={clothing.id}
+                      data-testid={`clothing-${clothing.id}`}
+                      onClick={() => !isProcessing && handleClothingSelect(clothing.id)}
+                      className={`group relative bg-white border-2 rounded-lg p-4 transition-all duration-200 ${
+                        isSelected 
+                          ? "border-foreground shadow-md" 
+                          : "border-gray-200 hover:border-gray-400"
+                      } ${isProcessing ? "opacity-50 cursor-not-allowed" : "cursor-pointer"}`}
+                    >
+                      <div className="flex flex-col items-center space-y-2">
+                        {IconComponent ? (
+                          <IconComponent className="w-10 h-10 text-gray-700" />
+                        ) : (
+                          <span className="text-3xl">{clothing.icon}</span>
+                        )}
+                        <span className="text-xs font-medium text-foreground">{clothing.name}</span>
+                      </div>
+                      
+                      {/* Color swatches for selected clothing */}
+                      {isSelected && (
+                        <div className="flex justify-center gap-2 mt-3 pt-3 border-t border-gray-100">
+                          {clothing.colors.map((color) => (
+                            <div
+                              key={color.hex}
+                              data-testid={`clothing-color-${color.hex.replace('#', '')}`}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                if (!isProcessing) setClothingColor(color.hex);
+                              }}
+                              title={color.name}
+                              className={`w-5 h-5 rounded-full transition-all duration-200 ${
+                                isProcessing ? "cursor-not-allowed" : "cursor-pointer hover:scale-110"
+                              }`}
+                              style={{
+                                backgroundColor: color.hex,
+                                boxShadow: clothingColor === color.hex 
+                                  ? `0 0 0 2px white, 0 0 0 3px ${color.hex}` 
+                                  : "0 1px 2px rgba(0,0,0,0.2)",
+                              }}
+                            />
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+              
+              {/* Current Selection Summary */}
+              <div className="text-center text-xs text-muted-foreground pt-2 border-t border-gray-200">
+                {selectedClothing.name} • {selectedClothing.colors.find(c => c.hex === clothingColor)?.name || "Default"}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <footer className="text-center py-6 mt-8 border-t border-border">
           <p className="text-xs uppercase tracking-widest text-muted-foreground/50">
             Powered by AI
           </p>
