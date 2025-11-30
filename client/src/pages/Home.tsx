@@ -462,7 +462,8 @@ export default function Home() {
               onClick={handleSubmit}
               disabled={isProcessing}
               data-testid="button-submit"
-              className="w-full md:w-auto px-8 py-5 md:py-6 text-sm md:text-base font-medium bg-gradient-to-r from-gray-900 to-gray-700 hover:from-gray-800 hover:to-gray-600 text-white rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full md:w-auto px-8 py-5 md:py-6 text-sm md:text-base font-medium text-white rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed hover:opacity-90"
+              style={{ backgroundColor: selectedColor }}
             >
               {isProcessing ? (
                 <>
