@@ -230,20 +230,21 @@ export default function Home() {
                           <motion.div
                             initial={{ opacity: 0 }}
                             animate={{ opacity: 1 }}
-                            className="w-full h-full flex flex-col items-center justify-center space-y-6"
+                            className="w-full h-full flex flex-col items-center justify-center space-y-3 md:space-y-4 px-4"
                           >
-                            <div className="relative w-20 h-20">
-                              <div className="absolute inset-0 bg-gray-200/80 rounded-full shadow-inner" />
-                              <div className="relative w-full h-full flex items-center justify-center">
-                                <Loader2 className="w-10 h-10 text-gray-600 animate-spin" strokeWidth={1.5} />
-                              </div>
-                            </div>
+                            <motion.div 
+                              className="text-3xl md:text-4xl"
+                              animate={{ rotate: [0, 10, -10, 10, 0] }}
+                              transition={{ duration: 0.5, repeat: Infinity, repeatDelay: 1 }}
+                            >
+                              🍌
+                            </motion.div>
                             <div className="text-center space-y-1">
-                              <p className="text-lg font-medium text-foreground">
-                                {selectedModel === "pro" ? "Creating with Gemini Pro" : "Processing"}
+                              <p className="text-base md:text-lg font-medium text-foreground" style={{ fontFamily: "'Cormorant Garamond', serif" }}>
+                                {selectedModel === "pro" ? "Peeling back the pixels..." : "Going bananas..."}
                               </p>
-                              <p className="text-sm text-muted-foreground">
-                                This may take a moment...
+                              <p className="text-xs md:text-sm text-muted-foreground">
+                                Your perfect headshot is ripening
                               </p>
                             </div>
                           </motion.div>
