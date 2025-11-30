@@ -77,7 +77,7 @@ async function generateTestSet() {
 
     try {
       const response = await genai.models.generateContent({
-        model: "gemini-2.5-flash-preview-05-20",
+        model: "gemini-2.5-flash-image",
         contents: [
           {
             role: "user",
@@ -93,7 +93,7 @@ Important: Generate only the image, no text or overlays. Make it look like a gen
           },
         ],
         config: {
-          responseModalities: ["image", "text"],
+          responseModalities: ["Text", "Image"],
         },
       });
 
