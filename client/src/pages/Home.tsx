@@ -135,9 +135,9 @@ export default function Home() {
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 mt-4">
           
           {/* Left Column - Preview Area (70%) */}
-          <div className="lg:col-span-8 space-y-4">
+          <div className="lg:col-span-8 space-y-6">
             {/* Preview Area */}
-            <div className="bg-white border border-gray-200 rounded-xl overflow-hidden shadow-sm">
+            <div className="bg-white border border-gray-200 rounded-2xl overflow-hidden shadow-lg">
               <AnimatePresence mode="wait">
                 {!originalImage ? (
                   /* Upload Zone */
@@ -149,21 +149,30 @@ export default function Home() {
                   >
                     <div
                       {...getRootProps()}
-                      className={`aspect-[4/3] flex flex-col items-center justify-center cursor-pointer transition-colors ${
-                        isDragActive ? "bg-gray-100" : "bg-gray-50 hover:bg-gray-100"
+                      className={`min-h-[500px] flex flex-col items-center justify-center cursor-pointer transition-all duration-300 ${
+                        isDragActive 
+                          ? "bg-gradient-to-br from-gray-100 to-gray-50 scale-[0.99]" 
+                          : "bg-gradient-to-br from-gray-50 to-white hover:from-gray-100 hover:to-gray-50"
                       } ${isProcessing ? "pointer-events-none opacity-50" : ""}`}
                     >
                       <input {...getInputProps()} data-testid="file-input" />
-                      <div className="text-center space-y-4 p-8">
-                        <div className="w-16 h-16 mx-auto rounded-full bg-gray-200 flex items-center justify-center">
-                          <Upload className="w-8 h-8 text-gray-500" strokeWidth={1.5} />
-                        </div>
-                        <div>
-                          <p className="text-lg font-medium text-foreground">
+                      <div className="text-center space-y-6 p-12">
+                        <motion.div 
+                          className="w-24 h-24 mx-auto rounded-full bg-gray-200/80 flex items-center justify-center shadow-inner"
+                          animate={{ scale: isDragActive ? 1.1 : 1 }}
+                          transition={{ duration: 0.2 }}
+                        >
+                          <Upload className="w-10 h-10 text-gray-500" strokeWidth={1.5} />
+                        </motion.div>
+                        <div className="space-y-2">
+                          <p className="text-2xl font-medium text-foreground">
                             {isDragActive ? "Drop your photo here" : "Drop your photo here"}
                           </p>
-                          <p className="text-sm text-muted-foreground mt-1">or click to browse</p>
+                          <p className="text-muted-foreground">or click to browse</p>
                         </div>
+                        <p className="text-xs text-muted-foreground/60 uppercase tracking-widest">
+                          JPG, PNG, WebP up to 10MB
+                        </p>
                       </div>
                     </div>
                   </motion.div>
@@ -173,62 +182,67 @@ export default function Home() {
                     key="preview"
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
-                    className="grid grid-cols-2 divide-x divide-gray-200"
+                    className="grid grid-cols-2"
                   >
                     {/* Before Pane */}
-                    <div className="relative">
-                      <div className="absolute top-3 left-3 z-10">
-                        <span className="text-[10px] uppercase tracking-widest text-white/80 bg-black/40 px-2 py-1 rounded">
+                    <div className="relative border-r border-gray-200">
+                      <div className="absolute top-4 left-4 z-10">
+                        <span className="text-xs uppercase tracking-widest text-white/90 bg-black/50 px-3 py-1.5 rounded-full font-medium backdrop-blur-sm">
                           Before
                         </span>
                       </div>
                       <motion.div
                         initial={{ opacity: 0, scale: 0.95 }}
                         animate={{ opacity: 1, scale: 1 }}
-                        transition={{ duration: 0.3 }}
-                        className="aspect-[4/5]"
+                        transition={{ duration: 0.4 }}
+                        className="min-h-[500px]"
                       >
                         <img 
                           src={originalImage} 
                           alt="Before" 
-                          className="w-full h-full object-cover"
+                          className="w-full h-full object-cover min-h-[500px]"
                         />
                       </motion.div>
                     </div>
 
                     {/* After Pane */}
                     <div className="relative">
-                      <div className="absolute top-3 left-3 z-10">
-                        <span className="text-[10px] uppercase tracking-widest text-white/80 bg-black/40 px-2 py-1 rounded">
+                      <div className="absolute top-4 left-4 z-10">
+                        <span className="text-xs uppercase tracking-widest text-white/90 bg-black/50 px-3 py-1.5 rounded-full font-medium backdrop-blur-sm">
                           After
                         </span>
                       </div>
-                      <div className="aspect-[4/5] bg-gray-100">
+                      <div className="min-h-[500px] bg-gradient-to-br from-gray-100 to-gray-50">
                         {isProcessing ? (
                           /* Spinner Overlay */
                           <motion.div
                             initial={{ opacity: 0 }}
                             animate={{ opacity: 1 }}
-                            className="w-full h-full flex flex-col items-center justify-center space-y-4"
+                            className="w-full h-full min-h-[500px] flex flex-col items-center justify-center space-y-6"
                           >
-                            <div className="relative w-16 h-16">
-                              <div className="absolute inset-0 bg-gray-200 rounded-full" />
+                            <div className="relative w-20 h-20">
+                              <div className="absolute inset-0 bg-gray-200/80 rounded-full shadow-inner" />
                               <div className="relative w-full h-full flex items-center justify-center">
-                                <Loader2 className="w-8 h-8 text-gray-600 animate-spin" strokeWidth={1.5} />
+                                <Loader2 className="w-10 h-10 text-gray-600 animate-spin" strokeWidth={1.5} />
                               </div>
                             </div>
-                            <p className="text-sm text-muted-foreground">
-                              {selectedModel === "pro" ? "Using Gemini Pro..." : "Processing..."}
-                            </p>
+                            <div className="text-center space-y-1">
+                              <p className="text-lg font-medium text-foreground">
+                                {selectedModel === "pro" ? "Creating with Gemini Pro" : "Processing"}
+                              </p>
+                              <p className="text-sm text-muted-foreground">
+                                This may take a moment...
+                              </p>
+                            </div>
                           </motion.div>
                         ) : processedImage ? (
                           <motion.img
                             initial={{ opacity: 0, scale: 0.95 }}
                             animate={{ opacity: 1, scale: 1 }}
-                            transition={{ duration: 0.3 }}
+                            transition={{ duration: 0.4 }}
                             src={processedImage}
                             alt="After"
-                            className="w-full h-full object-cover"
+                            className="w-full h-full object-cover min-h-[500px]"
                           />
                         ) : null}
                       </div>
