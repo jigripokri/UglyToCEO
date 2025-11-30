@@ -25,10 +25,11 @@ export async function registerRoutes(
       const imageBase64 = req.file.buffer.toString("base64");
       const mimeType = req.file.mimetype || "image/jpeg";
       const modelType = (req.body.model as ModelType) || "flash";
+      const backgroundColor = req.body.backgroundColor || "#562226";
       
-      console.log(`📸 Processing headshot transformation with model: ${modelType}`);
+      console.log(`📸 Processing headshot transformation with model: ${modelType}, background: ${backgroundColor}`);
       
-      const resultBase64 = await generateProfessionalHeadshot(imageBase64, mimeType, modelType);
+      const resultBase64 = await generateProfessionalHeadshot(imageBase64, mimeType, modelType, backgroundColor);
       
       await storage.logHeadshotCreation();
       
