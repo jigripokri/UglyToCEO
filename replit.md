@@ -65,18 +65,39 @@ Preferred communication style: Simple, everyday language.
 
 ### Data Storage
 
-**Current Implementation**: In-memory storage using a custom `MemStorage` class that implements the `IStorage` interface.
+**Implementation**: PostgreSQL database via Neon serverless driver with Drizzle ORM. The database is actively used for analytics tracking and evaluation results.
 
-**Schema Design**: Drizzle ORM schema defined for PostgreSQL with two tables:
+**Schema Design**: Drizzle ORM schema defined for PostgreSQL with tables:
 - `users`: Authentication data (id, username, password)
 - `headshot_logs`: Activity tracking (id, createdAt timestamp)
+- `analytics_logs`: Transformation analytics (modelUsed, backgroundColor, success, processingTimeMs, inputSizeBytes, outputSizeBytes, errorMessage)
+- `download_logs`: Download tracking (analyticsLogId foreign key)
+- `eval_results`: LLM-as-Judge evaluation results (runId, testImageName, scores, passed, judgeNotes)
 
-**Database Ready**: The application is structured to support database persistence but currently uses memory storage. Drizzle is configured for PostgreSQL (via Neon serverless driver) with:
+**Database Configuration**:
 - Schema location: `shared/schema.ts`
 - Migrations directory: `./migrations`
 - Environment variable: `DATABASE_URL`
+- WebSocket configuration via `ws` package for Neon serverless connection
 
-**Rationale**: Memory storage allows the application to run without database dependencies while maintaining a clean separation between storage interface and implementation. The `IStorage` interface makes it trivial to swap to database-backed storage by implementing the same interface with Drizzle queries.
+### Analytics & Evaluation System
+
+**Analytics Dashboard** (`/analytics`):
+- Total transformations, success rate, download rate
+- Average processing time per transformation
+- Model usage breakdown (Flash vs Pro)
+- Timeline charts showing daily/weekly activity
+
+**Evaluation System** (`/evals`):
+- LLM-as-Judge scoring using Gemini 2.5 Flash
+- Metrics: Professionalism (1-5), Identity Preservation (1-5), Background Accuracy (true/false), Technical Quality (1-5), Overall Score (1-5)
+- Pass rate tracking (score ≥3.0)
+- Per-test results with judge notes
+
+**Eval Runner** (`server/eval-runner.ts`):
+- Run via: `npx tsx server/eval-runner.ts`
+- Tests images in `eval-images/` directory against all background colors and both models
+- Stores results in database for dashboard viewing
 
 ### Build System
 
