@@ -23,7 +23,6 @@ import beforeFemale from "@assets/before(1)_1764471091566.jpg";
 import afterFemale from "@assets/after (1)_1764471091567.png";
 import beforeMale from "@assets/before(2)_1764471091566.jpg";
 import afterMale from "@assets/after (2)_1764471091567.png";
-import swlLogo from "@assets/Gemini_Generated_Image_77oit177oit177oi_1764478576118.jpg";
 
 export default function Home() {
   const [originalImage, setOriginalImage] = useState<string | null>(null);
@@ -622,10 +621,9 @@ export default function Home() {
                 href="https://stickywicketlabs.com/" 
                 target="_blank" 
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-1 text-foreground underline hover:text-foreground/80 transition-colors"
+                className="text-foreground underline hover:text-foreground/80 transition-colors"
               >
-                <img src={swlLogo} alt="Sticky Wicket Labs" className="h-4 w-auto" />
-                <span>Sticky Wicket Labs</span>
+                Sticky Wicket Labs
               </a>
             </div>
             <div className="flex items-center gap-1">
