@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "wouter";
-import { ArrowLeft, FlaskConical, Star, AlertTriangle, CheckCircle, User, Palette } from "lucide-react";
+import { ArrowLeft, FlaskConical, Star, AlertTriangle, CheckCircle, User, Palette, Zap, Crown, Clock, TrendingUp } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
@@ -200,6 +200,32 @@ export default function Evals() {
     ? ((validResults.filter(r => (r.overallScore ?? 0) >= 3).length / validResults.length) * 100).toFixed(1)
     : "0";
 
+  const flashResults = validResults.filter(r => r.modelUsed === "flash");
+  const proResults = validResults.filter(r => r.modelUsed === "pro");
+
+  const modelStats = {
+    flash: flashResults.length > 0 ? {
+      count: flashResults.length,
+      avgOverall: flashResults.reduce((sum, r) => sum + (r.overallScore ?? 0), 0) / flashResults.length,
+      avgIdentity: flashResults.reduce((sum, r) => sum + (r.identityPreservationScore ?? 0), 0) / flashResults.length,
+      avgProfessionalism: flashResults.reduce((sum, r) => sum + (r.professionalismScore ?? 0), 0) / flashResults.length,
+      avgTechnical: flashResults.reduce((sum, r) => sum + (r.technicalQualityScore ?? 0), 0) / flashResults.length,
+      backgroundAccuracy: (flashResults.filter(r => r.backgroundAccuracy === true).length / flashResults.length) * 100,
+      avgProcessingTime: flashResults.reduce((sum, r) => sum + (r.processingTimeMs ?? 0), 0) / flashResults.length,
+      passRate: (flashResults.filter(r => (r.overallScore ?? 0) >= 3).length / flashResults.length) * 100,
+    } : null,
+    pro: proResults.length > 0 ? {
+      count: proResults.length,
+      avgOverall: proResults.reduce((sum, r) => sum + (r.overallScore ?? 0), 0) / proResults.length,
+      avgIdentity: proResults.reduce((sum, r) => sum + (r.identityPreservationScore ?? 0), 0) / proResults.length,
+      avgProfessionalism: proResults.reduce((sum, r) => sum + (r.professionalismScore ?? 0), 0) / proResults.length,
+      avgTechnical: proResults.reduce((sum, r) => sum + (r.technicalQualityScore ?? 0), 0) / proResults.length,
+      backgroundAccuracy: (proResults.filter(r => r.backgroundAccuracy === true).length / proResults.length) * 100,
+      avgProcessingTime: proResults.reduce((sum, r) => sum + (r.processingTimeMs ?? 0), 0) / proResults.length,
+      passRate: (proResults.filter(r => (r.overallScore ?? 0) >= 3).length / proResults.length) * 100,
+    } : null,
+  };
+
   if (error) {
     return (
       <div className="min-h-screen bg-stone-50 flex items-center justify-center">
@@ -309,6 +335,169 @@ export default function Evals() {
                 </CardContent>
               </Card>
             </div>
+
+            {(modelStats.flash || modelStats.pro) && (
+              <div className="mb-8">
+                <h2 className="text-xl font-medium text-stone-700 mb-4 flex items-center gap-2">
+                  <TrendingUp className="w-5 h-5 text-amber-600" />
+                  Flash vs Pro Comparison
+                </h2>
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                  <Card className="border-2 border-amber-200 bg-gradient-to-br from-amber-50 to-white" data-testid="card-flash-stats">
+                    <CardHeader className="pb-3">
+                      <CardTitle className="flex items-center gap-2 text-amber-700">
+                        <Zap className="w-5 h-5" />
+                        Flash Model
+                        <Badge variant="secondary" className="ml-auto">{modelStats.flash?.count || 0} tests</Badge>
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                      {modelStats.flash ? (
+                        <>
+                          <div className="grid grid-cols-2 gap-4">
+                            <div className="text-center p-3 bg-white rounded-lg border border-amber-100">
+                              <div className="text-2xl font-bold text-amber-600">{modelStats.flash.avgOverall.toFixed(2)}</div>
+                              <div className="text-xs text-stone-500">Overall Score</div>
+                            </div>
+                            <div className="text-center p-3 bg-white rounded-lg border border-amber-100">
+                              <div className="text-2xl font-bold text-green-600">{modelStats.flash.passRate.toFixed(0)}%</div>
+                              <div className="text-xs text-stone-500">Pass Rate</div>
+                            </div>
+                          </div>
+                          <div className="space-y-2">
+                            <div className="flex justify-between text-sm">
+                              <span className="text-stone-600">Identity Preservation</span>
+                              <span className="font-medium">{modelStats.flash.avgIdentity.toFixed(2)}/5</span>
+                            </div>
+                            <div className="flex justify-between text-sm">
+                              <span className="text-stone-600">Professionalism</span>
+                              <span className="font-medium">{modelStats.flash.avgProfessionalism.toFixed(2)}/5</span>
+                            </div>
+                            <div className="flex justify-between text-sm">
+                              <span className="text-stone-600">Technical Quality</span>
+                              <span className="font-medium">{modelStats.flash.avgTechnical.toFixed(2)}/5</span>
+                            </div>
+                            <div className="flex justify-between text-sm">
+                              <span className="text-stone-600">Background Accuracy</span>
+                              <span className="font-medium">{modelStats.flash.backgroundAccuracy.toFixed(0)}%</span>
+                            </div>
+                          </div>
+                          <div className="pt-3 border-t border-amber-100 flex items-center justify-between">
+                            <div className="flex items-center gap-1 text-stone-600">
+                              <Clock className="w-4 h-4" />
+                              <span className="text-sm">Avg Time</span>
+                            </div>
+                            <span className="font-bold text-amber-700">{(modelStats.flash.avgProcessingTime / 1000).toFixed(1)}s</span>
+                          </div>
+                        </>
+                      ) : (
+                        <p className="text-center text-stone-400 py-4">No Flash results yet</p>
+                      )}
+                    </CardContent>
+                  </Card>
+
+                  <Card className="border-2 border-purple-200 bg-gradient-to-br from-purple-50 to-white" data-testid="card-pro-stats">
+                    <CardHeader className="pb-3">
+                      <CardTitle className="flex items-center gap-2 text-purple-700">
+                        <Crown className="w-5 h-5" />
+                        Pro Model
+                        <Badge variant="secondary" className="ml-auto">{modelStats.pro?.count || 0} tests</Badge>
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                      {modelStats.pro ? (
+                        <>
+                          <div className="grid grid-cols-2 gap-4">
+                            <div className="text-center p-3 bg-white rounded-lg border border-purple-100">
+                              <div className="text-2xl font-bold text-purple-600">{modelStats.pro.avgOverall.toFixed(2)}</div>
+                              <div className="text-xs text-stone-500">Overall Score</div>
+                            </div>
+                            <div className="text-center p-3 bg-white rounded-lg border border-purple-100">
+                              <div className="text-2xl font-bold text-green-600">{modelStats.pro.passRate.toFixed(0)}%</div>
+                              <div className="text-xs text-stone-500">Pass Rate</div>
+                            </div>
+                          </div>
+                          <div className="space-y-2">
+                            <div className="flex justify-between text-sm">
+                              <span className="text-stone-600">Identity Preservation</span>
+                              <span className="font-medium">{modelStats.pro.avgIdentity.toFixed(2)}/5</span>
+                            </div>
+                            <div className="flex justify-between text-sm">
+                              <span className="text-stone-600">Professionalism</span>
+                              <span className="font-medium">{modelStats.pro.avgProfessionalism.toFixed(2)}/5</span>
+                            </div>
+                            <div className="flex justify-between text-sm">
+                              <span className="text-stone-600">Technical Quality</span>
+                              <span className="font-medium">{modelStats.pro.avgTechnical.toFixed(2)}/5</span>
+                            </div>
+                            <div className="flex justify-between text-sm">
+                              <span className="text-stone-600">Background Accuracy</span>
+                              <span className="font-medium">{modelStats.pro.backgroundAccuracy.toFixed(0)}%</span>
+                            </div>
+                          </div>
+                          <div className="pt-3 border-t border-purple-100 flex items-center justify-between">
+                            <div className="flex items-center gap-1 text-stone-600">
+                              <Clock className="w-4 h-4" />
+                              <span className="text-sm">Avg Time</span>
+                            </div>
+                            <span className="font-bold text-purple-700">{(modelStats.pro.avgProcessingTime / 1000).toFixed(1)}s</span>
+                          </div>
+                        </>
+                      ) : (
+                        <p className="text-center text-stone-400 py-4">No Pro results yet</p>
+                      )}
+                    </CardContent>
+                  </Card>
+                </div>
+
+                {modelStats.flash && modelStats.pro && (
+                  <Card className="mt-4 bg-gradient-to-r from-amber-50 via-white to-purple-50" data-testid="card-comparison-insights">
+                    <CardContent className="pt-4">
+                      <h3 className="font-medium text-stone-700 mb-3 flex items-center gap-2">
+                        <Star className="w-4 h-4 text-amber-500" />
+                        Key Insights
+                      </h3>
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
+                        <div className="p-3 bg-white rounded-lg border">
+                          <div className="text-stone-500 mb-1">Quality Winner</div>
+                          <div className="font-bold flex items-center gap-2">
+                            {modelStats.pro.avgOverall > modelStats.flash.avgOverall ? (
+                              <><Crown className="w-4 h-4 text-purple-600" /> Pro by {(modelStats.pro.avgOverall - modelStats.flash.avgOverall).toFixed(2)}</>
+                            ) : modelStats.flash.avgOverall > modelStats.pro.avgOverall ? (
+                              <><Zap className="w-4 h-4 text-amber-600" /> Flash by {(modelStats.flash.avgOverall - modelStats.pro.avgOverall).toFixed(2)}</>
+                            ) : (
+                              <>Tied!</>
+                            )}
+                          </div>
+                        </div>
+                        <div className="p-3 bg-white rounded-lg border">
+                          <div className="text-stone-500 mb-1">Speed Winner</div>
+                          <div className="font-bold flex items-center gap-2">
+                            {modelStats.flash.avgProcessingTime < modelStats.pro.avgProcessingTime ? (
+                              <><Zap className="w-4 h-4 text-amber-600" /> Flash by {((modelStats.pro.avgProcessingTime - modelStats.flash.avgProcessingTime) / 1000).toFixed(1)}s</>
+                            ) : (
+                              <><Crown className="w-4 h-4 text-purple-600" /> Pro by {((modelStats.flash.avgProcessingTime - modelStats.pro.avgProcessingTime) / 1000).toFixed(1)}s</>
+                            )}
+                          </div>
+                        </div>
+                        <div className="p-3 bg-white rounded-lg border">
+                          <div className="text-stone-500 mb-1">Identity Preservation</div>
+                          <div className="font-bold flex items-center gap-2">
+                            {modelStats.pro.avgIdentity > modelStats.flash.avgIdentity ? (
+                              <><Crown className="w-4 h-4 text-purple-600" /> Pro by {(modelStats.pro.avgIdentity - modelStats.flash.avgIdentity).toFixed(2)}</>
+                            ) : modelStats.flash.avgIdentity > modelStats.pro.avgIdentity ? (
+                              <><Zap className="w-4 h-4 text-amber-600" /> Flash by {(modelStats.flash.avgIdentity - modelStats.pro.avgIdentity).toFixed(2)}</>
+                            ) : (
+                              <>Tied!</>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                )}
+              </div>
+            )}
 
             <h2 className="text-xl font-medium text-stone-700 mb-4">Individual Results</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
