@@ -285,20 +285,21 @@ export default function Home() {
                             {/* Camera with Orbiting Dots */}
                             <div className="relative w-20 h-20 md:w-24 md:h-24 flex items-center justify-center">
                               
-                              {/* Fade Flash Backdrop */}
+                              {/* Fade Flash Backdrop - Quick flash effect */}
                               <motion.div
-                                className="absolute inset-0 rounded-full bg-gradient-radial from-amber-200/60 via-amber-100/30 to-transparent"
+                                className="absolute inset-0 rounded-full"
                                 style={{
-                                  background: "radial-gradient(circle, rgba(251,191,36,0.4) 0%, rgba(251,191,36,0.1) 40%, transparent 70%)"
+                                  background: "radial-gradient(circle, rgba(255,255,255,0.9) 0%, rgba(255,255,255,0.4) 30%, transparent 60%)"
                                 }}
                                 animate={{ 
-                                  opacity: [0, 0.8, 0],
-                                  scale: [0.8, 1.1, 0.8]
+                                  opacity: [0, 1, 0],
+                                  scale: [0.9, 1.2, 0.9]
                                 }}
                                 transition={{ 
-                                  duration: 2,
+                                  duration: 0.4,
                                   repeat: Infinity,
-                                  ease: "easeInOut"
+                                  repeatDelay: 1.6,
+                                  ease: "easeOut"
                                 }}
                               />
                               
@@ -313,11 +314,11 @@ export default function Home() {
                                 }}
                               >
                                 {/* Dot 1 - Top */}
-                                <div className="absolute top-0 left-1/2 -translate-x-1/2 w-1.5 h-1.5 md:w-2 md:h-2 rounded-full bg-amber-400" />
+                                <div className="absolute top-0 left-1/2 -translate-x-1/2 w-1.5 h-1.5 md:w-2 md:h-2 rounded-full bg-gray-300" />
                                 {/* Dot 2 - Bottom Left */}
-                                <div className="absolute bottom-1 left-2 md:bottom-1.5 md:left-2.5 w-1.5 h-1.5 md:w-2 md:h-2 rounded-full bg-amber-500" />
+                                <div className="absolute bottom-1 left-2 md:bottom-1.5 md:left-2.5 w-1.5 h-1.5 md:w-2 md:h-2 rounded-full bg-gray-300" />
                                 {/* Dot 3 - Bottom Right */}
-                                <div className="absolute bottom-1 right-2 md:bottom-1.5 md:right-2.5 w-1.5 h-1.5 md:w-2 md:h-2 rounded-full bg-amber-400" />
+                                <div className="absolute bottom-1 right-2 md:bottom-1.5 md:right-2.5 w-1.5 h-1.5 md:w-2 md:h-2 rounded-full bg-gray-300" />
                               </motion.div>
                               
                               {/* Camera Icon - Centered */}
