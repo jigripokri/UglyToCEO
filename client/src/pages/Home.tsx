@@ -59,10 +59,21 @@ export default function Home() {
     }
   };
 
-  const handleFileSelect = async (file: File) => {
+  const handleFileSelect = (file: File) => {
+    // Revoke previous object URL if exists
+    if (originalImage) {
+      URL.revokeObjectURL(originalImage);
+    }
+    
     const objectUrl = URL.createObjectURL(file);
     setOriginalImage(objectUrl);
+    setPendingFile(file);
     setProcessedImage(null);
+  };
+
+  const handleSubmit = async () => {
+    if (!pendingFile) return;
+    
     setIsProcessing(true);
     
     const clothing: ClothingSelection = {
@@ -72,7 +83,7 @@ export default function Home() {
     };
     
     try {
-      const result = await transformImage(file, selectedModel, selectedColor, clothing);
+      const result = await transformImage(pendingFile, selectedModel, selectedColor, clothing);
       setProcessedImage(result);
       triggerConfetti();
     } catch (error) {
@@ -81,8 +92,6 @@ export default function Home() {
         description: error instanceof Error ? error.message : "Unknown error",
         variant: "destructive",
       });
-      // Reset on error
-      setOriginalImage(null);
     } finally {
       setIsProcessing(false);
     }
@@ -98,7 +107,11 @@ export default function Home() {
   };
 
   const handleReset = () => {
+    if (originalImage) {
+      URL.revokeObjectURL(originalImage);
+    }
     setOriginalImage(null);
+    setPendingFile(null);
     setProcessedImage(null);
     setIsProcessing(false);
   };
