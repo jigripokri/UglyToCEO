@@ -29,6 +29,10 @@ A professional, high-resolution profile photo, maintaining the exact facial stru
   console.log("📍 Model:", model);
   console.log("📷 Image MIME Type:", mimeType);
   console.log("📏 Input Image Size:", Math.round(imageBase64.length / 1024), "KB");
+  console.log("🎨 Background Color:", backgroundColor);
+  console.log("📝 System Prompt:");
+  console.log(prompt);
+  console.log("═══════════════════════════════════════════════════════════");
   console.log("⏳ Sending request to Gemini...");
 
   const startTime = Date.now();
