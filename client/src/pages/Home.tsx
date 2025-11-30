@@ -51,6 +51,12 @@ export default function Home() {
   
   // Cycle through photographer messages every 5 seconds while processing
   useEffect(() => {
+    // Clear any existing interval first
+    if (intervalRef.current) {
+      clearInterval(intervalRef.current);
+      intervalRef.current = null;
+    }
+    
     if (isProcessing) {
       // Start with a random message
       setCurrentMessageIndex(Math.floor(Math.random() * PHOTOGRAPHER_MESSAGES.length));
@@ -65,20 +71,15 @@ export default function Home() {
           return next;
         });
       }, 5000);
-      
-      return () => {
-        if (intervalRef.current) {
-          clearInterval(intervalRef.current);
-          intervalRef.current = null;
-        }
-      };
-    } else {
-      // Clear interval when not processing
+    }
+    
+    // Cleanup function - always returns to ensure proper cleanup
+    return () => {
       if (intervalRef.current) {
         clearInterval(intervalRef.current);
         intervalRef.current = null;
       }
-    }
+    };
   }, [isProcessing]);
   
   const { toast } = useToast();
@@ -275,26 +276,75 @@ export default function Home() {
                       </div>
                       <div className="h-[280px] md:h-[500px] overflow-hidden bg-gradient-to-br from-gray-100 to-gray-50">
                         {isProcessing ? (
-                          /* Spinner Overlay */
+                          /* Camera Flash Overlay */
                           <motion.div
                             initial={{ opacity: 0 }}
                             animate={{ opacity: 1 }}
-                            className="w-full h-full flex flex-col items-center justify-center space-y-3 md:space-y-4 px-4"
+                            className="w-full h-full flex flex-col items-center justify-center space-y-4 md:space-y-6 px-4"
                           >
-                            <motion.div 
-                              className="text-3xl md:text-4xl"
-                              animate={{ rotate: [0, 10, -10, 10, 0] }}
-                              transition={{ duration: 0.5, repeat: Infinity, repeatDelay: 1 }}
-                            >
-                              🍌
-                            </motion.div>
-                            <div className="text-center space-y-1">
-                              <p className="text-base md:text-lg font-medium text-foreground" style={{ fontFamily: "'Cormorant Garamond', serif" }}>
-                                {selectedModel === "pro" ? "Peeling back the pixels..." : "Going bananas..."}
-                              </p>
-                              <p className="text-xs md:text-sm text-muted-foreground">
-                                Your perfect headshot is ripening
-                              </p>
+                            {/* Camera with Flash Animation */}
+                            <div className="relative">
+                              <Camera className="w-10 h-10 md:w-12 md:h-12 text-foreground" strokeWidth={1.5} />
+                              
+                              {/* Flash Lines */}
+                              <motion.div
+                                className="absolute -top-2 -right-2 w-4 h-0.5 bg-amber-400 origin-left"
+                                style={{ rotate: -45 }}
+                                animate={{ 
+                                  scaleX: [0, 1, 0],
+                                  opacity: [0, 1, 0]
+                                }}
+                                transition={{ 
+                                  duration: 1.2, 
+                                  repeat: Infinity,
+                                  ease: "easeInOut"
+                                }}
+                              />
+                              <motion.div
+                                className="absolute -top-3 right-1 w-3 h-0.5 bg-amber-300 origin-left"
+                                style={{ rotate: -20 }}
+                                animate={{ 
+                                  scaleX: [0, 1, 0],
+                                  opacity: [0, 1, 0]
+                                }}
+                                transition={{ 
+                                  duration: 1.2, 
+                                  repeat: Infinity,
+                                  ease: "easeInOut",
+                                  delay: 0.1
+                                }}
+                              />
+                              <motion.div
+                                className="absolute -top-2 right-0 w-3.5 h-0.5 bg-amber-400 origin-left"
+                                style={{ rotate: 15 }}
+                                animate={{ 
+                                  scaleX: [0, 1, 0],
+                                  opacity: [0, 1, 0]
+                                }}
+                                transition={{ 
+                                  duration: 1.2, 
+                                  repeat: Infinity,
+                                  ease: "easeInOut",
+                                  delay: 0.2
+                                }}
+                              />
+                            </div>
+                            
+                            {/* Cycling Photographer Message */}
+                            <div className="text-center">
+                              <AnimatePresence mode="wait">
+                                <motion.p
+                                  key={currentMessageIndex}
+                                  initial={{ opacity: 0, y: 10 }}
+                                  animate={{ opacity: 1, y: 0 }}
+                                  exit={{ opacity: 0, y: -10 }}
+                                  transition={{ duration: 0.3 }}
+                                  className="text-sm md:text-lg font-medium text-foreground italic"
+                                  style={{ fontFamily: "'Cormorant Garamond', serif" }}
+                                >
+                                  "{PHOTOGRAPHER_MESSAGES[currentMessageIndex]}"
+                                </motion.p>
+                              </AnimatePresence>
                             </div>
                           </motion.div>
                         ) : processedImage ? (
