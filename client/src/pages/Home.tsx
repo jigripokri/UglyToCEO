@@ -4,10 +4,9 @@ import { UploadZone } from "@/components/UploadZone";
 import { transformImage } from "@/lib/mock-service";
 import { Button } from "@/components/ui/button";
 import { motion, AnimatePresence } from "framer-motion";
-import { Loader2, Download, RotateCcw, CheckCircle2 } from "lucide-react";
+import { Loader2, Download, RotateCcw } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import confetti from "canvas-confetti";
-import bgMesh from "@assets/generated_images/bg_mesh.png";
 
 export default function Home() {
   const [originalImage, setOriginalImage] = useState<string | null>(null);
@@ -36,29 +35,12 @@ export default function Home() {
   };
 
   const triggerConfetti = () => {
-    const end = Date.now() + 1000;
-    const colors = ['#FA4D56', '#2BCFB0', '#ffffff'];
-
-    (function frame() {
-      confetti({
-        particleCount: 3,
-        angle: 60,
-        spread: 55,
-        origin: { x: 0 },
-        colors: colors
-      });
-      confetti({
-        particleCount: 3,
-        angle: 120,
-        spread: 55,
-        origin: { x: 1 },
-        colors: colors
-      });
-
-      if (Date.now() < end) {
-        requestAnimationFrame(frame);
-      }
-    }());
+    confetti({
+      particleCount: 80,
+      spread: 100,
+      origin: { y: 0.6 },
+      colors: ['#1a1a1a', '#666666', '#999999', '#cccccc']
+    });
   };
 
   const handleReset = () => {
@@ -78,27 +60,17 @@ export default function Home() {
       
       toast({
         title: "Image saved",
-        className: "bg-slate-900 text-white border-none",
+        className: "bg-foreground text-background border-none",
       });
     }
   };
 
   return (
-    <div className="min-h-screen w-full relative overflow-x-hidden font-sans text-slate-900">
-      {/* Background Mesh */}
-      <div className="fixed inset-0 z-0">
-        <img 
-          src={bgMesh} 
-          alt="Background" 
-          className="w-full h-full object-cover opacity-60"
-        />
-        <div className="absolute inset-0 bg-white/30 backdrop-blur-[2px]" />
-      </div>
-
-      <div className="container relative z-10 mx-auto px-4 py-8 max-w-5xl">
+    <div className="min-h-screen w-full bg-background font-sans text-foreground">
+      <div className="container mx-auto px-6 py-8 max-w-6xl">
         <Header />
 
-        <main className="mt-8 md:mt-16 pb-20">
+        <main className="mt-8 md:mt-12 pb-24">
           <AnimatePresence mode="wait">
             {!originalImage ? (
               <UploadZone key="upload" onFileSelect={handleFileSelect} isProcessing={isProcessing} />
@@ -107,52 +79,44 @@ export default function Home() {
                 key="result"
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
-                className="space-y-10"
+                className="space-y-12"
               >
-                <div className="flex flex-col items-center justify-center min-h-[500px]">
+                <div className="flex flex-col items-center justify-center">
                   {isProcessing ? (
                     <motion.div 
-                      initial={{ scale: 0.9, opacity: 0 }}
-                      animate={{ scale: 1, opacity: 1 }}
-                      className="glass-panel p-12 rounded-[2.5rem] text-center space-y-8 max-w-md w-full"
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      className="bg-white border border-border rounded-lg p-16 text-center space-y-8 max-w-md w-full studio-shadow"
                     >
-                      <div className="relative w-32 h-32 mx-auto">
-                        <div className="absolute inset-0 bg-gradient-to-r from-primary to-secondary rounded-full blur-xl animate-pulse opacity-50" />
-                        <div className="relative bg-white rounded-full w-full h-full flex items-center justify-center shadow-lg">
-                           <Loader2 className="w-12 h-12 text-primary animate-spin" />
+                      <div className="relative w-20 h-20 mx-auto">
+                        <div className="absolute inset-0 bg-secondary rounded-full" />
+                        <div className="relative w-full h-full flex items-center justify-center">
+                           <Loader2 className="w-8 h-8 text-foreground animate-spin" strokeWidth={1.5} />
                         </div>
                       </div>
-                      <div>
-                        <h3 className="text-2xl font-bold text-slate-800">Polishing Pixels...</h3>
-                        <p className="text-slate-500 mt-2">Applying professional lighting & retouching</p>
-                      </div>
-                      
-                      <div className="flex justify-center gap-2">
-                         {[1,2,3].map(i => (
-                           <div key={i} className="w-2 h-2 bg-slate-200 rounded-full animate-bounce" style={{ animationDelay: `${i * 0.1}s`}} />
-                         ))}
+                      <div className="space-y-2">
+                        <h3 className="text-2xl font-display font-medium text-foreground">Processing</h3>
+                        <p className="text-muted-foreground font-light">Enhancing your portrait...</p>
                       </div>
                     </motion.div>
                   ) : (
-                    <div className="w-full flex flex-col items-center gap-8">
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 w-full max-w-4xl">
+                    <div className="w-full flex flex-col items-center gap-12">
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-8 w-full max-w-4xl">
                         {/* Before Image */}
                         <motion.div
                           initial={{ opacity: 0, x: -20 }}
                           animate={{ opacity: 1, x: 0 }}
                           transition={{ duration: 0.5 }}
-                          className="relative group"
+                          className="space-y-4"
                         >
-                          <div className="glass-panel rounded-3xl p-2 overflow-hidden">
-                            <div className="relative aspect-[4/5] rounded-2xl overflow-hidden bg-slate-100">
+                          <p className="text-sm uppercase tracking-widest text-muted-foreground text-center">Before</p>
+                          <div className="bg-white rounded-lg overflow-hidden studio-shadow-lg">
+                            <div className="aspect-[4/5] bg-secondary">
                               <img 
                                 src={originalImage} 
                                 alt="Before" 
                                 className="w-full h-full object-cover"
                               />
-                              <div className="absolute top-4 left-4 bg-black/50 backdrop-blur-md text-white px-4 py-1.5 rounded-full text-sm font-medium border border-white/10">
-                                Before
-                              </div>
                             </div>
                           </div>
                         </motion.div>
@@ -161,20 +125,17 @@ export default function Home() {
                         <motion.div
                           initial={{ opacity: 0, x: 20 }}
                           animate={{ opacity: 1, x: 0 }}
-                          transition={{ duration: 0.5, delay: 0.2 }}
-                          className="relative group"
+                          transition={{ duration: 0.5, delay: 0.15 }}
+                          className="space-y-4"
                         >
-                          <div className="absolute -inset-1 bg-gradient-to-r from-primary/30 to-secondary/30 rounded-[2rem] blur-lg opacity-50 group-hover:opacity-100 transition duration-500" />
-                          <div className="glass-panel rounded-3xl p-2 overflow-hidden relative">
-                            <div className="relative aspect-[4/5] rounded-2xl overflow-hidden bg-slate-100">
+                          <p className="text-sm uppercase tracking-widest text-muted-foreground text-center">After</p>
+                          <div className="bg-white rounded-lg overflow-hidden studio-shadow-lg">
+                            <div className="aspect-[4/5] bg-secondary">
                               <img 
                                 src={processedImage!} 
                                 alt="After" 
                                 className="w-full h-full object-cover"
                               />
-                              <div className="absolute top-4 right-4 bg-white/90 backdrop-blur-md text-primary px-4 py-1.5 rounded-full text-sm font-bold shadow-lg">
-                                After ✨
-                              </div>
                             </div>
                           </div>
                         </motion.div>
@@ -183,37 +144,27 @@ export default function Home() {
                       <motion.div 
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: 0.5 }}
-                        className="flex flex-col sm:flex-row items-center gap-4 w-full max-w-md mt-4"
+                        transition={{ delay: 0.4 }}
+                        className="flex flex-col sm:flex-row items-center gap-4"
                       >
                         <Button 
                           onClick={handleDownload}
                           size="lg"
-                          className="w-full h-14 rounded-2xl text-lg font-bold bg-slate-900 hover:bg-slate-800 text-white shadow-xl hover:shadow-2xl transition-all hover:-translate-y-0.5"
+                          className="h-12 px-8 rounded-md text-sm font-medium bg-foreground hover:bg-foreground/90 text-background tracking-wide uppercase"
                         >
-                          <Download className="mr-2 h-5 w-5" />
-                          Download HD
+                          <Download className="mr-2 h-4 w-4" strokeWidth={1.5} />
+                          Download
                         </Button>
                         
                         <Button 
                           variant="outline" 
                           onClick={handleReset}
                           size="lg"
-                          className="w-full h-14 rounded-2xl text-lg font-bold border-slate-200 hover:bg-white hover:text-primary transition-all"
+                          className="h-12 px-8 rounded-md text-sm font-medium border-border hover:bg-secondary tracking-wide uppercase"
                         >
-                          <RotateCcw className="mr-2 h-5 w-5" />
+                          <RotateCcw className="mr-2 h-4 w-4" strokeWidth={1.5} />
                           New Photo
                         </Button>
-                      </motion.div>
-
-                      <motion.div
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        transition={{ delay: 1 }}
-                        className="flex items-center gap-2 text-sm text-emerald-600 font-medium bg-emerald-50 px-4 py-2 rounded-full"
-                      >
-                        <CheckCircle2 className="w-4 h-4" />
-                        Watermark removed automatically
                       </motion.div>
                     </div>
                   )}
@@ -222,6 +173,12 @@ export default function Home() {
             )}
           </AnimatePresence>
         </main>
+
+        <footer className="text-center py-8 border-t border-border">
+          <p className="text-xs uppercase tracking-widest text-muted-foreground/50">
+            Powered by AI
+          </p>
+        </footer>
       </div>
     </div>
   );
