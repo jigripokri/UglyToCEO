@@ -351,8 +351,8 @@ export default function Home() {
                 {/* Background Color Picker - 3x2 Grid */}
                 <div className="space-y-2">
                   <p className="text-[10px] uppercase tracking-widest text-muted-foreground text-center">Background</p>
-                  <div className="flex justify-center">
-                    <div className="grid grid-cols-3 gap-2">
+                  <div className="flex justify-center gap-2">
+                    <div className="flex gap-2">
                       {BACKGROUND_COLORS.map((color) => (
                         <button
                           key={color.hex}
