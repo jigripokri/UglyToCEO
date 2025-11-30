@@ -466,7 +466,45 @@ export default function Home() {
           </div>
         </div>
 
-        <footer className="text-center py-4 mt-4 border-t border-border">
+        {/* Examples Section */}
+        <section className="mt-12 py-10 -mx-4 px-4 bg-gradient-to-b from-gray-50/50 to-gray-100/30">
+          <div className="max-w-5xl mx-auto">
+            {/* Section Header */}
+            <div className="text-center mb-8">
+              <h2 className="text-xl md:text-2xl font-medium text-foreground/80 mb-2">
+                What You'll Receive
+              </h2>
+              <p className="text-sm text-muted-foreground/70">
+                See real transformations from our AI studio
+              </p>
+            </div>
+
+            {/* Examples Grid */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {/* Example 1 - Male */}
+              <div className="bg-white rounded-2xl overflow-hidden shadow-sm border border-gray-100">
+                <img 
+                  src="/attached_assets/image_1764470622536.png" 
+                  alt="Before and after transformation - male professional headshot" 
+                  className="w-full h-auto"
+                  data-testid="example-male"
+                />
+              </div>
+
+              {/* Example 2 - Female */}
+              <div className="bg-white rounded-2xl overflow-hidden shadow-sm border border-gray-100">
+                <img 
+                  src="/attached_assets/image_1764470635946.png" 
+                  alt="Before and after transformation - female professional headshot" 
+                  className="w-full h-auto"
+                  data-testid="example-female"
+                />
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <footer className="text-center py-4 border-t border-border">
           <p className="text-xs uppercase tracking-widest text-muted-foreground/50">
             Powered by AI
           </p>
