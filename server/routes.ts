@@ -23,16 +23,19 @@ export async function registerRoutes(
       }
 
       const imageBase64 = req.file.buffer.toString("base64");
+      const mimeType = req.file.mimetype || "image/jpeg";
       
-      const resultBase64 = await generateProfessionalHeadshot(imageBase64);
+      console.log(`📸 Processing headshot transformation...`);
+      
+      const resultBase64 = await generateProfessionalHeadshot(imageBase64, mimeType);
       
       await storage.logHeadshotCreation();
       
       const count = await storage.getHeadshotCount();
-      console.log(`✨ Headshot created! Total count: ${count}`);
+      console.log(`✨ Headshot #${count} created successfully!`);
       
       res.json({
-        image: `data:image/jpeg;base64,${resultBase64}`,
+        image: `data:image/png;base64,${resultBase64}`,
         count,
       });
     } catch (error) {

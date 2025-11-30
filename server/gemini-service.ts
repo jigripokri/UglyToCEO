@@ -5,20 +5,15 @@ const genAI = new GoogleGenAI({
 });
 
 export async function generateProfessionalHeadshot(
-  imageBase64: string
+  imageBase64: string,
+  mimeType: string = "image/jpeg"
 ): Promise<string> {
-  const prompt = `Transform this casual photo into a professional business headshot. 
-The result should have:
-- Professional studio lighting
-- Clean, neutral gray background
-- Business professional attire (suit or blazer)
-- Sharp focus and high quality
-- Natural, confident expression
-- Professional photography composition
-Generate a high-quality professional headshot suitable for LinkedIn, corporate profiles, or business cards.`;
+  const prompt = `Transform this photo into the following:
 
-  const result = await genAI.models.generateContent({
-    model: "gemini-2.5-flash-image",
+A professional, high-resolution profile photo, maintaining the exact facial structure, identity, and key features of the person in the input image. The subject is framed from the chest up, with ample headroom. The person looks directly at the camera. They are styled for a professional photo studio shoot, wearing a premium smart casual blazer in a subtle charcoal gray. The background is a solid '#562226' neutral studio color. Shot from a high angle with bright and airy soft, diffused studio lighting, gently illuminating the face and creating a subtle catchlight in the eyes, conveying a sense of clarity. Captured on an 85mm f/1.8 lens with a shallow depth of field, exquisite focus on the eyes, and beautiful, soft bokeh. Observe crisp detail on the fabric texture of the blazer, individual strands of hair, and natural, realistic skin texture. The atmosphere exudes confidence, professionalism, and approachability. Clean and bright cinematic color grading with subtle warmth and balanced tones, ensuring a polished and contemporary feel.`;
+
+  const response = await genAI.models.generateContent({
+    model: "gemini-3-pro-preview",
     contents: [
       {
         role: "user",
@@ -28,7 +23,7 @@ Generate a high-quality professional headshot suitable for LinkedIn, corporate p
           },
           {
             inlineData: {
-              mimeType: "image/jpeg",
+              mimeType: mimeType,
               data: imageBase64,
             },
           },
@@ -37,10 +32,8 @@ Generate a high-quality professional headshot suitable for LinkedIn, corporate p
     ],
   });
 
-  const response = result.response;
-  
   if (!response.candidates || response.candidates.length === 0) {
-    throw new Error("No image generated");
+    throw new Error("No response generated");
   }
 
   const candidate = response.candidates[0];
@@ -48,10 +41,11 @@ Generate a high-quality professional headshot suitable for LinkedIn, corporate p
     throw new Error("Invalid response format");
   }
 
-  const imagePart = candidate.content.parts.find((part: any) => part.inlineData);
-  if (!imagePart || !imagePart.inlineData) {
-    throw new Error("No image data in response");
+  for (const part of candidate.content.parts) {
+    if (part.inlineData && part.inlineData.data) {
+      return part.inlineData.data;
+    }
   }
 
-  return imagePart.inlineData.data;
+  throw new Error("No image data in response");
 }
