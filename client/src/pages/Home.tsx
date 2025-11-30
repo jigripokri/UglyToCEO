@@ -126,80 +126,16 @@ export default function Home() {
     disabled: isProcessing,
   });
 
-  // Model toggle component for header
-  const ModelToggle = (
-    <div className="inline-flex items-center bg-gray-100 border border-gray-300 rounded-full p-1 shadow-sm">
-      <button
-        type="button"
-        data-testid="toggle-flash"
-        onClick={() => setSelectedModel("flash")}
-        disabled={isProcessing}
-        style={{
-          backgroundColor: selectedModel === "flash" ? "#1a1a1a" : "transparent",
-          color: selectedModel === "flash" ? "#ffffff" : "#666666",
-        }}
-        className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold transition-all duration-200 ${
-          isProcessing ? "opacity-50 cursor-not-allowed" : "cursor-pointer"
-        }`}
-      >
-        <Zap className="w-3 h-3" />
-        Flash
-      </button>
-      <button
-        type="button"
-        data-testid="toggle-pro"
-        onClick={() => setSelectedModel("pro")}
-        disabled={isProcessing}
-        style={{
-          backgroundColor: selectedModel === "pro" ? "#1a1a1a" : "transparent",
-          color: selectedModel === "pro" ? "#ffffff" : "#666666",
-        }}
-        className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold transition-all duration-200 ${
-          isProcessing ? "opacity-50 cursor-not-allowed" : "cursor-pointer"
-        }`}
-      >
-        <Sparkles className="w-3 h-3" />
-        Pro
-      </button>
-    </div>
-  );
-
   return (
     <div className="min-h-screen w-full bg-background font-sans text-foreground">
       <div className="container mx-auto px-4 py-4 max-w-7xl">
-        <Header rightContent={ModelToggle} />
+        <Header />
 
-        {/* Main two-column layout */}
-        <div className="grid grid-cols-1 lg:grid-cols-5 gap-6 mt-4">
+        {/* Main two-column layout - 70/30 split */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 mt-4">
           
-          {/* Left Column - Preview Area (60%) */}
-          <div className="lg:col-span-3 space-y-4">
-            {/* Background Color Picker */}
-            <div className="flex items-center justify-center gap-3 py-2">
-              <span className="text-xs uppercase tracking-widest text-muted-foreground">Background</span>
-              <div className="flex items-center gap-2">
-                {BACKGROUND_COLORS.map((color) => (
-                  <button
-                    key={color.hex}
-                    type="button"
-                    data-testid={`color-${color.hex.replace('#', '')}`}
-                    onClick={() => setSelectedColor(color.hex)}
-                    disabled={isProcessing}
-                    title={color.name}
-                    className={`w-6 h-6 rounded-full transition-all duration-200 ${
-                      isProcessing ? "opacity-50 cursor-not-allowed" : "cursor-pointer hover:scale-110"
-                    }`}
-                    style={{
-                      backgroundColor: color.hex,
-                      boxShadow: selectedColor === color.hex 
-                        ? `0 0 0 2px white, 0 0 0 3px ${color.hex}` 
-                        : "0 1px 2px rgba(0,0,0,0.3)",
-                    }}
-                  />
-                ))}
-              </div>
-            </div>
-
+          {/* Left Column - Preview Area (70%) */}
+          <div className="lg:col-span-8 space-y-4">
             {/* Preview Area */}
             <div className="bg-white border border-gray-200 rounded-xl overflow-hidden shadow-sm">
               <AnimatePresence mode="wait">
@@ -333,107 +269,184 @@ export default function Home() {
             )}
           </div>
 
-          {/* Right Column - Outfit Customization (40%) */}
-          <div className="lg:col-span-2">
-            <div className="bg-gray-50 border border-gray-200 rounded-xl p-5 space-y-5 lg:sticky lg:top-4">
-              <h3 className="text-xs uppercase tracking-widest text-muted-foreground text-center">
-                Customize Outfit
-              </h3>
+          {/* Right Column - Settings Panel (30%) */}
+          <div className="lg:col-span-4">
+            <div className="space-y-4 lg:sticky lg:top-4 lg:max-w-[340px]">
+              
+              {/* Session Settings Card */}
+              <div className="bg-gray-50 border border-gray-200 rounded-xl p-4 space-y-4">
+                <h3 className="text-[10px] uppercase tracking-widest text-muted-foreground text-center font-medium">
+                  Session Settings
+                </h3>
 
-              {/* Gender Toggle */}
-              <div className="flex justify-center">
-                <div className="inline-flex items-center bg-white border border-gray-300 rounded-full p-1 shadow-sm">
-                  <button
-                    type="button"
-                    data-testid="gender-men"
-                    onClick={() => handleGenderChange("men")}
-                    disabled={isProcessing}
-                    style={{
-                      backgroundColor: gender === "men" ? "#1a1a1a" : "transparent",
-                      color: gender === "men" ? "#ffffff" : "#666666",
-                    }}
-                    className={`flex items-center gap-1.5 px-4 py-2 rounded-full text-sm font-semibold transition-all duration-200 ${
-                      isProcessing ? "opacity-50 cursor-not-allowed" : "cursor-pointer"
-                    }`}
-                  >
-                    Men
-                  </button>
-                  <button
-                    type="button"
-                    data-testid="gender-women"
-                    onClick={() => handleGenderChange("women")}
-                    disabled={isProcessing}
-                    style={{
-                      backgroundColor: gender === "women" ? "#1a1a1a" : "transparent",
-                      color: gender === "women" ? "#ffffff" : "#666666",
-                    }}
-                    className={`flex items-center gap-1.5 px-4 py-2 rounded-full text-sm font-semibold transition-all duration-200 ${
-                      isProcessing ? "opacity-50 cursor-not-allowed" : "cursor-pointer"
-                    }`}
-                  >
-                    Women
-                  </button>
+                {/* Model Toggle */}
+                <div className="flex justify-center">
+                  <div className="inline-flex items-center bg-white border border-gray-300 rounded-full p-1 shadow-sm">
+                    <button
+                      type="button"
+                      data-testid="toggle-flash"
+                      onClick={() => setSelectedModel("flash")}
+                      disabled={isProcessing}
+                      style={{
+                        backgroundColor: selectedModel === "flash" ? "#1a1a1a" : "transparent",
+                        color: selectedModel === "flash" ? "#ffffff" : "#666666",
+                      }}
+                      className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold transition-all duration-200 ${
+                        isProcessing ? "opacity-50 cursor-not-allowed" : "cursor-pointer"
+                      }`}
+                    >
+                      <Zap className="w-3 h-3" />
+                      Flash
+                    </button>
+                    <button
+                      type="button"
+                      data-testid="toggle-pro"
+                      onClick={() => setSelectedModel("pro")}
+                      disabled={isProcessing}
+                      style={{
+                        backgroundColor: selectedModel === "pro" ? "#1a1a1a" : "transparent",
+                        color: selectedModel === "pro" ? "#ffffff" : "#666666",
+                      }}
+                      className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold transition-all duration-200 ${
+                        isProcessing ? "opacity-50 cursor-not-allowed" : "cursor-pointer"
+                      }`}
+                    >
+                      <Sparkles className="w-3 h-3" />
+                      Pro
+                    </button>
+                  </div>
+                </div>
+
+                {/* Background Color Picker - 3x2 Grid */}
+                <div className="space-y-2">
+                  <p className="text-[10px] uppercase tracking-widest text-muted-foreground text-center">Background</p>
+                  <div className="flex justify-center">
+                    <div className="grid grid-cols-3 gap-2">
+                      {BACKGROUND_COLORS.map((color) => (
+                        <button
+                          key={color.hex}
+                          type="button"
+                          data-testid={`color-${color.hex.replace('#', '')}`}
+                          onClick={() => setSelectedColor(color.hex)}
+                          disabled={isProcessing}
+                          title={color.name}
+                          className={`w-7 h-7 rounded-full transition-all duration-200 ${
+                            isProcessing ? "opacity-50 cursor-not-allowed" : "cursor-pointer hover:scale-110"
+                          }`}
+                          style={{
+                            backgroundColor: color.hex,
+                            boxShadow: selectedColor === color.hex 
+                              ? `0 0 0 2px white, 0 0 0 3px ${color.hex}` 
+                              : "0 1px 2px rgba(0,0,0,0.3)",
+                          }}
+                        />
+                      ))}
+                    </div>
+                  </div>
                 </div>
               </div>
 
-              {/* Clothing Cards Grid */}
-              <div className="grid grid-cols-2 gap-3">
-                {clothingOptions.map((clothing) => {
-                  const IconComponent = ClothingIconMap[clothing.id];
-                  const isSelected = clothingId === clothing.id;
-                  return (
-                    <div
-                      key={clothing.id}
-                      data-testid={`clothing-${clothing.id}`}
-                      onClick={() => !isProcessing && handleClothingSelect(clothing.id)}
-                      className={`group relative bg-white border-2 rounded-lg p-4 transition-all duration-200 ${
-                        isSelected 
-                          ? "border-foreground shadow-md" 
-                          : "border-gray-200 hover:border-gray-400"
-                      } ${isProcessing ? "opacity-50 cursor-not-allowed" : "cursor-pointer"}`}
+              {/* Outfit Customization Card */}
+              <div className="bg-gray-50 border border-gray-200 rounded-xl p-4 space-y-4">
+                <h3 className="text-[10px] uppercase tracking-widest text-muted-foreground text-center font-medium">
+                  Customize Outfit
+                </h3>
+
+                {/* Gender Toggle */}
+                <div className="flex justify-center">
+                  <div className="inline-flex items-center bg-white border border-gray-300 rounded-full p-1 shadow-sm">
+                    <button
+                      type="button"
+                      data-testid="gender-men"
+                      onClick={() => handleGenderChange("men")}
+                      disabled={isProcessing}
+                      style={{
+                        backgroundColor: gender === "men" ? "#1a1a1a" : "transparent",
+                        color: gender === "men" ? "#ffffff" : "#666666",
+                      }}
+                      className={`flex items-center gap-1.5 px-4 py-1.5 rounded-full text-xs font-semibold transition-all duration-200 ${
+                        isProcessing ? "opacity-50 cursor-not-allowed" : "cursor-pointer"
+                      }`}
                     >
-                      <div className="flex flex-col items-center space-y-2">
-                        {IconComponent ? (
-                          <IconComponent className="w-10 h-10 text-gray-700" />
-                        ) : (
-                          <span className="text-3xl">{clothing.icon}</span>
-                        )}
-                        <span className="text-xs font-medium text-foreground">{clothing.name}</span>
-                      </div>
-                      
-                      {/* Color swatches for selected clothing */}
-                      {isSelected && (
-                        <div className="flex justify-center gap-2 mt-3 pt-3 border-t border-gray-100">
-                          {clothing.colors.map((color) => (
-                            <div
-                              key={color.hex}
-                              data-testid={`clothing-color-${color.hex.replace('#', '')}`}
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                if (!isProcessing) setClothingColor(color.hex);
-                              }}
-                              title={color.name}
-                              className={`w-5 h-5 rounded-full transition-all duration-200 ${
-                                isProcessing ? "cursor-not-allowed" : "cursor-pointer hover:scale-110"
-                              }`}
-                              style={{
-                                backgroundColor: color.hex,
-                                boxShadow: clothingColor === color.hex 
-                                  ? `0 0 0 2px white, 0 0 0 3px ${color.hex}` 
-                                  : "0 1px 2px rgba(0,0,0,0.2)",
-                              }}
-                            />
-                          ))}
+                      Men
+                    </button>
+                    <button
+                      type="button"
+                      data-testid="gender-women"
+                      onClick={() => handleGenderChange("women")}
+                      disabled={isProcessing}
+                      style={{
+                        backgroundColor: gender === "women" ? "#1a1a1a" : "transparent",
+                        color: gender === "women" ? "#ffffff" : "#666666",
+                      }}
+                      className={`flex items-center gap-1.5 px-4 py-1.5 rounded-full text-xs font-semibold transition-all duration-200 ${
+                        isProcessing ? "opacity-50 cursor-not-allowed" : "cursor-pointer"
+                      }`}
+                    >
+                      Women
+                    </button>
+                  </div>
+                </div>
+
+                {/* Clothing Cards Grid */}
+                <div className="grid grid-cols-2 gap-2">
+                  {clothingOptions.map((clothing) => {
+                    const IconComponent = ClothingIconMap[clothing.id];
+                    const isSelected = clothingId === clothing.id;
+                    return (
+                      <div
+                        key={clothing.id}
+                        data-testid={`clothing-${clothing.id}`}
+                        onClick={() => !isProcessing && handleClothingSelect(clothing.id)}
+                        className={`group relative bg-white border-2 rounded-lg p-3 transition-all duration-200 ${
+                          isSelected 
+                            ? "border-foreground shadow-md" 
+                            : "border-gray-200 hover:border-gray-400"
+                        } ${isProcessing ? "opacity-50 cursor-not-allowed" : "cursor-pointer"}`}
+                      >
+                        <div className="flex flex-col items-center space-y-1.5">
+                          {IconComponent ? (
+                            <IconComponent className="w-8 h-8 text-gray-700" />
+                          ) : (
+                            <span className="text-2xl">{clothing.icon}</span>
+                          )}
+                          <span className="text-[10px] font-medium text-foreground text-center leading-tight">{clothing.name}</span>
                         </div>
-                      )}
-                    </div>
-                  );
-                })}
-              </div>
-              
-              {/* Current Selection Summary */}
-              <div className="text-center text-xs text-muted-foreground pt-2 border-t border-gray-200">
-                {selectedClothing.name} • {selectedClothing.colors.find(c => c.hex === clothingColor)?.name || "Default"}
+                        
+                        {/* Color swatches for selected clothing */}
+                        {isSelected && (
+                          <div className="flex justify-center gap-1.5 mt-2 pt-2 border-t border-gray-100">
+                            {clothing.colors.map((color) => (
+                              <div
+                                key={color.hex}
+                                data-testid={`clothing-color-${color.hex.replace('#', '')}`}
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  if (!isProcessing) setClothingColor(color.hex);
+                                }}
+                                title={color.name}
+                                className={`w-4 h-4 rounded-full transition-all duration-200 ${
+                                  isProcessing ? "cursor-not-allowed" : "cursor-pointer hover:scale-110"
+                                }`}
+                                style={{
+                                  backgroundColor: color.hex,
+                                  boxShadow: clothingColor === color.hex 
+                                    ? `0 0 0 1.5px white, 0 0 0 2.5px ${color.hex}` 
+                                    : "0 1px 2px rgba(0,0,0,0.2)",
+                                }}
+                              />
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+                
+                {/* Current Selection Summary */}
+                <div className="text-center text-[10px] text-muted-foreground pt-2 border-t border-gray-200">
+                  {selectedClothing.name} • {selectedClothing.colors.find(c => c.hex === clothingColor)?.name || "Default"}
+                </div>
               </div>
             </div>
           </div>
