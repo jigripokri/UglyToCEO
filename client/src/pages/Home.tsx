@@ -276,7 +276,7 @@ export default function Home() {
                       </div>
                       <div 
                         className="h-[280px] md:h-[500px] overflow-hidden transition-colors duration-300"
-                        style={{ backgroundColor: isProcessing ? selectedColor : undefined }}
+                        style={{ backgroundColor: selectedColor }}
                       >
                         {isProcessing ? (
                           /* Camera with Orbiting Dots & Flash Effect */
