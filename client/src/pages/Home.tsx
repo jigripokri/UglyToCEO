@@ -274,7 +274,10 @@ export default function Home() {
                           After
                         </span>
                       </div>
-                      <div className="h-[280px] md:h-[500px] overflow-hidden bg-gradient-to-br from-gray-100 to-gray-50">
+                      <div 
+                        className="h-[280px] md:h-[500px] overflow-hidden transition-colors duration-300"
+                        style={{ backgroundColor: isProcessing ? selectedColor : undefined }}
+                      >
                         {isProcessing ? (
                           /* Camera with Orbiting Dots & Flash Effect */
                           <motion.div
@@ -314,15 +317,15 @@ export default function Home() {
                                 }}
                               >
                                 {/* Dot 1 - Top */}
-                                <div className="absolute top-0 left-1/2 -translate-x-1/2 w-1.5 h-1.5 md:w-2 md:h-2 rounded-full bg-gray-300" />
+                                <div className="absolute top-0 left-1/2 -translate-x-1/2 w-1.5 h-1.5 md:w-2 md:h-2 rounded-full bg-white/70" />
                                 {/* Dot 2 - Bottom Left */}
-                                <div className="absolute bottom-1 left-2 md:bottom-1.5 md:left-2.5 w-1.5 h-1.5 md:w-2 md:h-2 rounded-full bg-gray-300" />
+                                <div className="absolute bottom-1 left-2 md:bottom-1.5 md:left-2.5 w-1.5 h-1.5 md:w-2 md:h-2 rounded-full bg-white/70" />
                                 {/* Dot 3 - Bottom Right */}
-                                <div className="absolute bottom-1 right-2 md:bottom-1.5 md:right-2.5 w-1.5 h-1.5 md:w-2 md:h-2 rounded-full bg-gray-300" />
+                                <div className="absolute bottom-1 right-2 md:bottom-1.5 md:right-2.5 w-1.5 h-1.5 md:w-2 md:h-2 rounded-full bg-white/70" />
                               </motion.div>
                               
                               {/* Camera Icon - Centered */}
-                              <Camera className="w-10 h-10 md:w-12 md:h-12 text-foreground relative z-10" strokeWidth={1.5} />
+                              <Camera className="w-10 h-10 md:w-12 md:h-12 text-white relative z-10" strokeWidth={1.5} />
                             </div>
                             
                             {/* Cycling Photographer Message */}
@@ -334,7 +337,7 @@ export default function Home() {
                                   animate={{ opacity: 1, y: 0 }}
                                   exit={{ opacity: 0, y: -10 }}
                                   transition={{ duration: 0.3 }}
-                                  className="text-sm md:text-lg font-medium text-foreground italic"
+                                  className="text-sm md:text-lg font-medium text-white italic"
                                   style={{ fontFamily: "'Cormorant Garamond', serif" }}
                                 >
                                   "{PHOTOGRAPHER_MESSAGES[currentMessageIndex]}"
