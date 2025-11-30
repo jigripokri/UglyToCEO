@@ -276,58 +276,52 @@ export default function Home() {
                       </div>
                       <div className="h-[280px] md:h-[500px] overflow-hidden bg-gradient-to-br from-gray-100 to-gray-50">
                         {isProcessing ? (
-                          /* Camera Flash Overlay */
+                          /* Camera with Orbiting Dots & Flash Effect */
                           <motion.div
                             initial={{ opacity: 0 }}
                             animate={{ opacity: 1 }}
                             className="w-full h-full flex flex-col items-center justify-center space-y-4 md:space-y-6 px-4"
                           >
-                            {/* Camera with Flash Animation */}
-                            <div className="relative">
-                              <Camera className="w-10 h-10 md:w-12 md:h-12 text-foreground" strokeWidth={1.5} />
+                            {/* Camera with Orbiting Dots */}
+                            <div className="relative w-20 h-20 md:w-24 md:h-24 flex items-center justify-center">
                               
-                              {/* Flash Lines */}
+                              {/* Fade Flash Backdrop */}
                               <motion.div
-                                className="absolute -top-2 -right-2 w-4 h-0.5 bg-amber-400 origin-left"
-                                style={{ rotate: -45 }}
+                                className="absolute inset-0 rounded-full bg-gradient-radial from-amber-200/60 via-amber-100/30 to-transparent"
+                                style={{
+                                  background: "radial-gradient(circle, rgba(251,191,36,0.4) 0%, rgba(251,191,36,0.1) 40%, transparent 70%)"
+                                }}
                                 animate={{ 
-                                  scaleX: [0, 1, 0],
-                                  opacity: [0, 1, 0]
+                                  opacity: [0, 0.8, 0],
+                                  scale: [0.8, 1.1, 0.8]
                                 }}
                                 transition={{ 
-                                  duration: 1.2, 
+                                  duration: 2,
                                   repeat: Infinity,
                                   ease: "easeInOut"
                                 }}
                               />
+                              
+                              {/* Orbiting Dots Container */}
                               <motion.div
-                                className="absolute -top-3 right-1 w-3 h-0.5 bg-amber-300 origin-left"
-                                style={{ rotate: -20 }}
-                                animate={{ 
-                                  scaleX: [0, 1, 0],
-                                  opacity: [0, 1, 0]
-                                }}
-                                transition={{ 
-                                  duration: 1.2, 
+                                className="absolute inset-0"
+                                animate={{ rotate: 360 }}
+                                transition={{
+                                  duration: 3,
                                   repeat: Infinity,
-                                  ease: "easeInOut",
-                                  delay: 0.1
+                                  ease: "linear"
                                 }}
-                              />
-                              <motion.div
-                                className="absolute -top-2 right-0 w-3.5 h-0.5 bg-amber-400 origin-left"
-                                style={{ rotate: 15 }}
-                                animate={{ 
-                                  scaleX: [0, 1, 0],
-                                  opacity: [0, 1, 0]
-                                }}
-                                transition={{ 
-                                  duration: 1.2, 
-                                  repeat: Infinity,
-                                  ease: "easeInOut",
-                                  delay: 0.2
-                                }}
-                              />
+                              >
+                                {/* Dot 1 - Top */}
+                                <div className="absolute top-0 left-1/2 -translate-x-1/2 w-1.5 h-1.5 md:w-2 md:h-2 rounded-full bg-amber-400" />
+                                {/* Dot 2 - Bottom Left */}
+                                <div className="absolute bottom-1 left-2 md:bottom-1.5 md:left-2.5 w-1.5 h-1.5 md:w-2 md:h-2 rounded-full bg-amber-500" />
+                                {/* Dot 3 - Bottom Right */}
+                                <div className="absolute bottom-1 right-2 md:bottom-1.5 md:right-2.5 w-1.5 h-1.5 md:w-2 md:h-2 rounded-full bg-amber-400" />
+                              </motion.div>
+                              
+                              {/* Camera Icon - Centered */}
+                              <Camera className="w-10 h-10 md:w-12 md:h-12 text-foreground relative z-10" strokeWidth={1.5} />
                             </div>
                             
                             {/* Cycling Photographer Message */}
