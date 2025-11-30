@@ -23,7 +23,7 @@ export default function Home() {
   const [originalImage, setOriginalImage] = useState<string | null>(null);
   const [processedImage, setProcessedImage] = useState<string | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
-  const [selectedModel, setSelectedModel] = useState<ModelType>("flash");
+  const [selectedModel, setSelectedModel] = useState<ModelType>("pro");
   const [selectedColor, setSelectedColor] = useState<BackgroundColor>("#562226");
   const [pendingFile, setPendingFile] = useState<File | null>(null);
   
