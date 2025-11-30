@@ -3,10 +3,10 @@ import { Zap, Sparkles } from "lucide-react";
 import type { ModelType } from "@/lib/api";
 import { TransformArrow } from "./TransformArrow";
 
-import beforeFemale from "@assets/before(1)_1764471091566.jpg";
-import afterFemale from "@assets/after (1)_1764471091567.png";
-import beforeMale from "@assets/before(2)_1764471091566.jpg";
-import afterMale from "@assets/after (2)_1764471091567.png";
+import beforeFemale from "@assets/optimized/before-female.jpg";
+import afterFemale from "@assets/optimized/after-female.jpg";
+import beforeMale from "@assets/optimized/before-male.jpg";
+import afterMale from "@assets/optimized/after-male.jpg";
 
 interface HeaderProps {
   selectedModel: ModelType;
@@ -104,6 +104,10 @@ export function Header({ selectedModel, setSelectedModel, isProcessing, gender }
                 transition={{ duration: 0.4 }}
                 src={beforeImage}
                 alt="Before transformation"
+                width={240}
+                height={320}
+                loading="eager"
+                decoding="async"
                 className="w-full h-full object-cover object-top"
               />
               <div className="absolute bottom-2 left-2">
@@ -139,6 +143,10 @@ export function Header({ selectedModel, setSelectedModel, isProcessing, gender }
                 transition={{ duration: 0.4, delay: 0.1 }}
                 src={afterImage}
                 alt="After transformation"
+                width={240}
+                height={320}
+                loading="eager"
+                decoding="async"
                 className="w-full h-full object-cover object-top"
               />
               <div className="absolute bottom-2 left-2">
