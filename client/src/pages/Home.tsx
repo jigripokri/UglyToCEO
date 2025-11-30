@@ -30,6 +30,7 @@ export default function Home() {
   const [isProcessing, setIsProcessing] = useState(false);
   const [selectedModel, setSelectedModel] = useState<ModelType>("flash");
   const [selectedColor, setSelectedColor] = useState<BackgroundColor>("#562226");
+  const [pendingFile, setPendingFile] = useState<File | null>(null);
   
   // Clothing state
   const [gender, setGender] = useState<Gender>(DEFAULT_CLOTHING.gender);
