@@ -19,6 +19,11 @@ import { useToast } from "@/hooks/use-toast";
 import { useDropzone } from "react-dropzone";
 import confetti from "canvas-confetti";
 
+import beforeFemale from "@assets/before(1)_1764471091566.jpg";
+import afterFemale from "@assets/after (1)_1764471091567.png";
+import beforeMale from "@assets/before(2)_1764471091566.jpg";
+import afterMale from "@assets/after (2)_1764471091567.png";
+
 export default function Home() {
   const [originalImage, setOriginalImage] = useState<string | null>(null);
   const [processedImage, setProcessedImage] = useState<string | null>(null);
@@ -487,7 +492,7 @@ export default function Home() {
                 <div className="flex-1 max-w-[140px]">
                   <div className="relative rounded-xl overflow-hidden shadow-sm border border-gray-200/60">
                     <img 
-                      src="/attached_assets/before(1)_1764471091566.jpg" 
+                      src={beforeFemale} 
                       alt="Before - casual photo" 
                       className="w-full h-[180px] object-cover object-top"
                     />
@@ -510,7 +515,7 @@ export default function Home() {
                 <div className="flex-1 max-w-[140px]">
                   <div className="relative rounded-xl overflow-hidden shadow-sm border border-gray-200/60">
                     <img 
-                      src="/attached_assets/after%20(1)_1764471091567.png" 
+                      src={afterFemale} 
                       alt="After - professional headshot" 
                       className="w-full h-[180px] object-cover object-top"
                     />
@@ -529,7 +534,7 @@ export default function Home() {
                 <div className="flex-1 max-w-[140px]">
                   <div className="relative rounded-xl overflow-hidden shadow-sm border border-gray-200/60">
                     <img 
-                      src="/attached_assets/before(2)_1764471091566.jpg" 
+                      src={beforeMale} 
                       alt="Before - casual photo" 
                       className="w-full h-[180px] object-cover object-top"
                     />
@@ -552,7 +557,7 @@ export default function Home() {
                 <div className="flex-1 max-w-[140px]">
                   <div className="relative rounded-xl overflow-hidden shadow-sm border border-gray-200/60">
                     <img 
-                      src="/attached_assets/after%20(2)_1764471091567.png" 
+                      src={afterMale} 
                       alt="After - professional headshot" 
                       className="w-full h-[180px] object-cover object-top"
                     />
