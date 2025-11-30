@@ -485,6 +485,34 @@ export default function Home() {
           </div>
         </div>
 
+        {/* Submit Button - Full Width */}
+        {pendingFile && !processedImage && (
+          <motion.div 
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="flex justify-center mt-6"
+          >
+            <Button
+              onClick={handleSubmit}
+              disabled={isProcessing}
+              data-testid="button-submit"
+              className="px-8 py-6 text-base font-medium bg-gradient-to-r from-gray-900 to-gray-700 hover:from-gray-800 hover:to-gray-600 text-white rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {isProcessing ? (
+                <>
+                  <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+                  Generating...
+                </>
+              ) : (
+                <>
+                  <Sparkles className="w-5 h-5 mr-2" />
+                  Generate Headshot
+                </>
+              )}
+            </Button>
+          </motion.div>
+        )}
+
         {/* Examples Section - Subdued */}
         <section className="mt-16 py-8 -mx-4 px-4 bg-gray-50/40">
           <div className="max-w-4xl mx-auto">
