@@ -1,8 +1,8 @@
-# HeadShot Hero - AI Professional Headshot Generator
+# Ugly to CEO - AI Professional Headshot Generator
 
 ## Overview
 
-HeadShot Hero is a web application that transforms casual photos into professional headshots using Google's Gemini AI image generation models. Users upload their photos, select customization options (AI model and background color), and receive AI-enhanced professional headshots with a before/after comparison view.
+Ugly to CEO is a web application that transforms casual photos into professional headshots using Google's Gemini AI image generation models. Users upload their photos, select customization options (AI model and background color), and receive AI-enhanced professional headshots with a before/after comparison view.
 
 The application uses a full-stack TypeScript architecture with React on the frontend and Express on the backend, featuring a clean, studio-quality design aesthetic with professional animations and visual effects.
 

@@ -74,7 +74,7 @@ export function Header({ selectedModel, setSelectedModel, isProcessing, gender }
           className="text-3xl md:text-5xl lg:text-6xl font-medium tracking-tight leading-tight text-foreground text-center"
           style={{ fontFamily: "'Cormorant Garamond', serif" }}
         >
-          Headshot Hero
+          Ugly to CEO
         </motion.h1>
 
         {/* V-Formation Cards */}
@@ -169,6 +169,9 @@ export function Header({ selectedModel, setSelectedModel, isProcessing, gender }
             <span className="hidden md:inline"><br /></span>
             <span className="md:hidden"> </span>
             Studio quality, without the studio.
+            <span className="hidden md:inline"><br /></span>
+            <span className="md:hidden"> </span>
+            <span className="italic text-muted-foreground/70">(It even works for beautiful people)</span>
           </motion.p>
         </div>
       </div>
