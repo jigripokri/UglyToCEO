@@ -126,13 +126,18 @@ export const DEFAULT_CLOTHING: ClothingSelection = {
 };
 
 export async function transformImage(
-  file: File, 
+  files: File | File[], 
   model: ModelType = "flash",
   backgroundColor: BackgroundColor = "#562226",
   clothing: ClothingSelection = DEFAULT_CLOTHING
 ): Promise<string> {
   const formData = new FormData();
-  formData.append("image", file);
+  
+  const fileArray = Array.isArray(files) ? files : [files];
+  fileArray.forEach((file) => {
+    formData.append("images", file);
+  });
+  
   formData.append("model", model);
   formData.append("backgroundColor", backgroundColor);
   formData.append("gender", clothing.gender);

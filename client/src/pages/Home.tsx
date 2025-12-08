@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useMemo } from "react";
 import { Header } from "@/components/Header";
 import { 
   transformImage, 
@@ -12,11 +12,11 @@ import {
   DEFAULT_CLOTHING,
 } from "@/lib/api";
 import { ClothingIconMap } from "@/components/ClothingIcons";
+import { MultiImageUploader } from "@/components/MultiImageUploader";
 import { Button } from "@/components/ui/button";
 import { motion, AnimatePresence } from "framer-motion";
-import { Loader2, Download, RotateCcw, Zap, Sparkles, Upload, Camera } from "lucide-react";
+import { Loader2, Download, RotateCcw, Sparkles, Camera } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import { useDropzone } from "react-dropzone";
 import confetti from "canvas-confetti";
 
 const PHOTOGRAPHER_MESSAGES = [
@@ -33,12 +33,11 @@ const PHOTOGRAPHER_MESSAGES = [
 ];
 
 export default function Home() {
-  const [originalImage, setOriginalImage] = useState<string | null>(null);
+  const [referenceImages, setReferenceImages] = useState<File[]>([]);
   const [processedImage, setProcessedImage] = useState<string | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
   const [selectedModel, setSelectedModel] = useState<ModelType>("pro");
   const [selectedColor, setSelectedColor] = useState<BackgroundColor>("#562226");
-  const [pendingFile, setPendingFile] = useState<File | null>(null);
   
   // Clothing state
   const [gender, setGender] = useState<Gender>(DEFAULT_CLOTHING.gender);
@@ -104,20 +103,13 @@ export default function Home() {
     }
   };
 
-  const handleFileSelect = (file: File) => {
-    // Revoke previous object URL if exists
-    if (originalImage) {
-      URL.revokeObjectURL(originalImage);
-    }
-    
-    const objectUrl = URL.createObjectURL(file);
-    setOriginalImage(objectUrl);
-    setPendingFile(file);
+  const handleImagesChange = (images: File[]) => {
+    setReferenceImages(images);
     setProcessedImage(null);
   };
 
   const handleSubmit = async () => {
-    if (!pendingFile) return;
+    if (referenceImages.length === 0) return;
     
     setIsProcessing(true);
     
@@ -128,7 +120,7 @@ export default function Home() {
     };
     
     try {
-      const result = await transformImage(pendingFile, selectedModel, selectedColor, clothing);
+      const result = await transformImage(referenceImages, selectedModel, selectedColor, clothing);
       setProcessedImage(result);
       triggerConfetti();
     } catch (error) {
@@ -152,11 +144,7 @@ export default function Home() {
   };
 
   const handleReset = () => {
-    if (originalImage) {
-      URL.revokeObjectURL(originalImage);
-    }
-    setOriginalImage(null);
-    setPendingFile(null);
+    setReferenceImages([]);
     setProcessedImage(null);
     setIsProcessing(false);
   };
@@ -176,19 +164,23 @@ export default function Home() {
       });
     }
   };
+  
+  const hasImages = referenceImages.length > 0;
+  
+  const firstImageUrl = useMemo(() => {
+    if (referenceImages.length > 0) {
+      return URL.createObjectURL(referenceImages[0]);
+    }
+    return null;
+  }, [referenceImages]);
 
-  const { getRootProps, getInputProps, isDragActive } = useDropzone({
-    onDrop: (acceptedFiles) => {
-      if (acceptedFiles.length > 0) {
-        handleFileSelect(acceptedFiles[0]);
+  useEffect(() => {
+    return () => {
+      if (firstImageUrl) {
+        URL.revokeObjectURL(firstImageUrl);
       }
-    },
-    accept: {
-      'image/*': ['.jpeg', '.jpg', '.png', '.webp']
-    },
-    maxFiles: 1,
-    disabled: isProcessing,
-  });
+    };
+  }, [firstImageUrl]);
 
   return (
     <div className="min-h-screen w-full bg-background font-sans text-foreground">
@@ -203,7 +195,7 @@ export default function Home() {
             {/* Preview Area */}
             <div className="bg-white border border-gray-200 rounded-2xl overflow-hidden shadow-lg">
               <AnimatePresence mode="wait">
-                {!originalImage ? (
+                {!hasImages ? (
                   /* Upload Zone */
                   <motion.div
                     key="upload"
@@ -211,37 +203,30 @@ export default function Home() {
                     animate={{ opacity: 1 }}
                     exit={{ opacity: 0 }}
                   >
-                    <div
-                      {...getRootProps()}
-                      className={`min-h-[280px] md:min-h-[500px] flex flex-col items-center justify-center cursor-pointer transition-all duration-300 ${
-                        isDragActive 
-                          ? "bg-gradient-to-br from-gray-100 to-gray-50 scale-[0.99]" 
-                          : "bg-gradient-to-br from-gray-50 to-white hover:from-gray-100 hover:to-gray-50"
-                      } ${isProcessing ? "pointer-events-none opacity-50" : ""}`}
-                    >
-                      <input {...getInputProps()} data-testid="file-input" />
-                      <div className="text-center space-y-4 md:space-y-6 p-6 md:p-12">
-                        <motion.div 
-                          className="w-16 h-16 md:w-24 md:h-24 mx-auto rounded-full bg-gray-200/80 flex items-center justify-center shadow-inner"
-                          animate={{ scale: isDragActive ? 1.1 : 1 }}
-                          transition={{ duration: 0.2 }}
-                        >
-                          <Upload className="w-7 h-7 md:w-10 md:h-10 text-gray-500" strokeWidth={1.5} />
-                        </motion.div>
-                        <div className="space-y-1 md:space-y-2">
-                          <p className="text-lg md:text-2xl font-medium text-foreground">
-                            {isDragActive ? "Drop your photo here" : "Drop your photo here"}
-                          </p>
-                          <p className="text-sm md:text-base text-muted-foreground">or click to browse</p>
-                        </div>
-                        <p className="text-[10px] md:text-xs text-muted-foreground/60 uppercase tracking-widest">
-                          JPG, PNG, WebP up to 10MB
-                        </p>
-                      </div>
-                    </div>
+                    <MultiImageUploader
+                      images={referenceImages}
+                      onImagesChange={handleImagesChange}
+                      maxImages={4}
+                      disabled={isProcessing}
+                    />
+                  </motion.div>
+                ) : !processedImage && !isProcessing ? (
+                  /* Reference Images Preview (before processing) */
+                  <motion.div
+                    key="reference"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                  >
+                    <MultiImageUploader
+                      images={referenceImages}
+                      onImagesChange={handleImagesChange}
+                      maxImages={4}
+                      disabled={isProcessing}
+                    />
                   </motion.div>
                 ) : (
-                  /* Before/After Split View */
+                  /* Before/After Split View (during/after processing) */
                   <motion.div
                     key="preview"
                     initial={{ opacity: 0 }}
@@ -252,7 +237,7 @@ export default function Home() {
                     <div className="relative border-r border-gray-200">
                       <div className="absolute top-2 left-2 md:top-4 md:left-4 z-10">
                         <span className="text-[10px] md:text-xs uppercase tracking-widest text-white/90 bg-black/50 px-2 py-1 md:px-3 md:py-1.5 rounded-full font-medium backdrop-blur-sm">
-                          Before
+                          {referenceImages.length > 1 ? `${referenceImages.length} refs` : "Before"}
                         </span>
                       </div>
                       <div className="h-[280px] md:h-[500px] overflow-hidden">
@@ -260,8 +245,8 @@ export default function Home() {
                           initial={{ opacity: 0, scale: 0.95 }}
                           animate={{ opacity: 1, scale: 1 }}
                           transition={{ duration: 0.4 }}
-                          src={originalImage} 
-                          alt="Before" 
+                          src={firstImageUrl || ""} 
+                          alt="Reference" 
                           className="w-full h-full object-cover"
                         />
                       </div>
@@ -550,7 +535,7 @@ export default function Home() {
         </div>
 
         {/* Submit Button - Sticky on mobile */}
-        {pendingFile && !processedImage && (
+        {hasImages && !processedImage && (
           <motion.div 
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}

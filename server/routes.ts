@@ -9,9 +9,11 @@ import * as path from "path";
 const upload = multer({
   storage: multer.memoryStorage(),
   limits: {
-    fileSize: 10 * 1024 * 1024, // 10MB max
+    fileSize: 10 * 1024 * 1024, // 10MB max per file
   },
 });
+
+const uploadMultiple = upload.array("images", 4);
 
 const VALID_BACKGROUND_COLORS = [
   "#562226", // Deep Burgundy
@@ -45,17 +47,26 @@ export async function registerRoutes(
   app: Express
 ): Promise<Server> {
   
-  app.post("/api/transform", upload.single("image"), async (req, res) => {
+  app.post("/api/transform", uploadMultiple, async (req, res) => {
     const startTime = Date.now();
     let analyticsLogId: string | null = null;
     
     try {
-      if (!req.file) {
-        return res.status(400).json({ error: "No image file provided" });
+      const files = req.files as Express.Multer.File[];
+      
+      if (!files || files.length === 0) {
+        return res.status(400).json({ error: "No image files provided" });
+      }
+      
+      if (files.length > 4) {
+        return res.status(400).json({ error: "Maximum 4 images allowed" });
       }
 
-      const imageBase64 = req.file.buffer.toString("base64");
-      const mimeType = req.file.mimetype || "image/jpeg";
+      const referenceImages = files.map(file => ({
+        base64: file.buffer.toString("base64"),
+        mimeType: file.mimetype || "image/jpeg",
+      }));
+      
       const modelType = (req.body.model as ModelType) || "flash";
       
       const requestedBgColor = req.body.backgroundColor || "#562226";
@@ -87,20 +98,20 @@ export async function registerRoutes(
       
       console.log(`📸 Processing headshot transformation:`);
       console.log(`   Model: ${modelType}`);
+      console.log(`   Reference images: ${files.length}`);
       console.log(`   Background: ${backgroundColor}`);
       console.log(`   Gender: ${gender}`);
       console.log(`   Clothing: ${clothingId} (${clothingColor})`);
       
       const resultBase64 = await generateProfessionalHeadshot(
-        imageBase64, 
-        mimeType, 
+        referenceImages,
         modelType, 
         backgroundColor,
         clothing
       );
       
       const processingTimeMs = Date.now() - startTime;
-      const inputSizeBytes = req.file.buffer.length;
+      const inputSizeBytes = files.reduce((sum, f) => sum + f.buffer.length, 0);
       const outputSizeBytes = resultBase64.length;
       
       const analyticsLog = await storage.logAnalytics({
@@ -111,13 +122,14 @@ export async function registerRoutes(
         inputSizeBytes,
         outputSizeBytes,
         errorMessage: null,
+        referenceCount: files.length,
       });
       analyticsLogId = analyticsLog.id;
       
       await storage.logHeadshotCreation();
       
       const count = await storage.getHeadshotCount();
-      console.log(`✨ Headshot #${count} created successfully in ${processingTimeMs}ms!`);
+      console.log(`✨ Headshot #${count} created successfully in ${processingTimeMs}ms! (${files.length} reference images)`);
       
       res.json({
         image: `data:image/png;base64,${resultBase64}`,
@@ -127,6 +139,7 @@ export async function registerRoutes(
     } catch (error) {
       const processingTimeMs = Date.now() - startTime;
       const errorMessage = error instanceof Error ? error.message : "Unknown error";
+      const files = req.files as Express.Multer.File[] | undefined;
       
       try {
         await storage.logAnalytics({
@@ -134,9 +147,10 @@ export async function registerRoutes(
           backgroundColor: req.body?.backgroundColor || "#562226",
           success: false,
           processingTimeMs,
-          inputSizeBytes: req.file?.buffer?.length || null,
+          inputSizeBytes: files?.reduce((sum, f) => sum + f.buffer.length, 0) || null,
           outputSizeBytes: null,
           errorMessage,
+          referenceCount: files?.length || 1,
         });
       } catch (logError) {
         console.error("Failed to log analytics:", logError);

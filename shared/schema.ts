@@ -24,6 +24,7 @@ export const analyticsLogs = pgTable("analytics_logs", {
   errorMessage: text("error_message"),
   inputSizeBytes: integer("input_size_bytes"),
   outputSizeBytes: integer("output_size_bytes"),
+  referenceCount: integer("reference_count").default(1),
 });
 
 export const downloadLogs = pgTable("download_logs", {
