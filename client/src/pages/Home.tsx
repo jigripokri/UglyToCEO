@@ -167,20 +167,17 @@ export default function Home() {
   
   const hasImages = referenceImages.length > 0;
   
-  const firstImageUrl = useMemo(() => {
-    if (referenceImages.length > 0) {
-      return URL.createObjectURL(referenceImages[0]);
-    }
-    return null;
+  const imageUrls = useMemo(() => {
+    return referenceImages.map(file => URL.createObjectURL(file));
   }, [referenceImages]);
 
   useEffect(() => {
     return () => {
-      if (firstImageUrl) {
-        URL.revokeObjectURL(firstImageUrl);
-      }
+      imageUrls.forEach(url => URL.revokeObjectURL(url));
     };
-  }, [firstImageUrl]);
+  }, [imageUrls]);
+  
+  const firstImageUrl = imageUrls[0] || null;
 
   return (
     <div className="min-h-screen w-full bg-background font-sans text-foreground">
@@ -233,22 +230,48 @@ export default function Home() {
                     animate={{ opacity: 1 }}
                     className="grid grid-cols-2"
                   >
-                    {/* Before Pane */}
+                    {/* Before Pane - Shows all reference images in a grid */}
                     <div className="relative border-r border-gray-200">
                       <div className="absolute top-2 left-2 md:top-4 md:left-4 z-10">
                         <span className="text-[10px] md:text-xs uppercase tracking-widest text-white/90 bg-black/50 px-2 py-1 md:px-3 md:py-1.5 rounded-full font-medium backdrop-blur-sm">
                           {referenceImages.length > 1 ? `${referenceImages.length} refs` : "Before"}
                         </span>
                       </div>
-                      <div className="h-[280px] md:h-[500px] overflow-hidden">
-                        <motion.img
-                          initial={{ opacity: 0, scale: 0.95 }}
-                          animate={{ opacity: 1, scale: 1 }}
-                          transition={{ duration: 0.4 }}
-                          src={firstImageUrl || ""} 
-                          alt="Reference" 
-                          className="w-full h-full object-cover"
-                        />
+                      <div className="h-[280px] md:h-[500px] overflow-hidden bg-gray-100">
+                        {referenceImages.length === 1 ? (
+                          <motion.img
+                            initial={{ opacity: 0, scale: 0.95 }}
+                            animate={{ opacity: 1, scale: 1 }}
+                            transition={{ duration: 0.4 }}
+                            src={firstImageUrl || ""} 
+                            alt="Reference" 
+                            className="w-full h-full object-cover"
+                          />
+                        ) : (
+                          <div className={`grid h-full ${
+                            referenceImages.length === 2 ? "grid-cols-1 grid-rows-2" :
+                            referenceImages.length === 3 ? "grid-cols-2 grid-rows-2" :
+                            "grid-cols-2 grid-rows-2"
+                          }`}>
+                            {imageUrls.map((url, index) => (
+                              <motion.div
+                                key={index}
+                                initial={{ opacity: 0, scale: 0.95 }}
+                                animate={{ opacity: 1, scale: 1 }}
+                                transition={{ duration: 0.4, delay: index * 0.1 }}
+                                className={`overflow-hidden ${
+                                  referenceImages.length === 3 && index === 0 ? "row-span-2" : ""
+                                }`}
+                              >
+                                <img
+                                  src={url}
+                                  alt={`Reference ${index + 1}`}
+                                  className="w-full h-full object-cover"
+                                />
+                              </motion.div>
+                            ))}
+                          </div>
+                        )}
                       </div>
                     </div>
 
