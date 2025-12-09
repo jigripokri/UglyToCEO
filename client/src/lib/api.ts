@@ -125,12 +125,17 @@ export const DEFAULT_CLOTHING: ClothingSelection = {
   clothingColor: "#4a4a4a", // Charcoal Gray
 };
 
+export interface TransformResult {
+  image: string;
+  analyticsLogId: string | null;
+}
+
 export async function transformImage(
   files: File | File[], 
   model: ModelType = "flash",
   backgroundColor: BackgroundColor = "#562226",
   clothing: ClothingSelection = DEFAULT_CLOTHING
-): Promise<string> {
+): Promise<TransformResult> {
   const formData = new FormData();
   
   const fileArray = Array.isArray(files) ? files : [files];
@@ -155,7 +160,18 @@ export async function transformImage(
   }
 
   const data = await response.json();
-  return data.image;
+  return { image: data.image, analyticsLogId: data.analyticsLogId || null };
+}
+
+export async function logDownload(analyticsLogId: string): Promise<void> {
+  const response = await fetch("/api/analytics/log-download", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ analyticsLogId }),
+  });
+  if (!response.ok) {
+    throw new Error("Failed to log download");
+  }
 }
 
 export async function getStats(): Promise<{ totalHeadshots: number }> {

@@ -2,6 +2,7 @@ import { useState, useEffect, useRef, useMemo } from "react";
 import { Header } from "@/components/Header";
 import { 
   transformImage, 
+  logDownload,
   type ModelType, 
   type Gender,
   type ClothingSelection,
@@ -35,6 +36,7 @@ const PHOTOGRAPHER_MESSAGES = [
 export default function Home() {
   const [referenceImages, setReferenceImages] = useState<File[]>([]);
   const [processedImage, setProcessedImage] = useState<string | null>(null);
+  const [analyticsLogId, setAnalyticsLogId] = useState<string | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
   const [selectedModel, setSelectedModel] = useState<ModelType>("pro");
   const [selectedColor, setSelectedColor] = useState<BackgroundColor>("#562226");
@@ -121,7 +123,8 @@ export default function Home() {
     
     try {
       const result = await transformImage(referenceImages, selectedModel, selectedColor, clothing);
-      setProcessedImage(result);
+      setProcessedImage(result.image);
+      setAnalyticsLogId(result.analyticsLogId);
       triggerConfetti();
     } catch (error) {
       toast({
@@ -146,10 +149,11 @@ export default function Home() {
   const handleReset = () => {
     setReferenceImages([]);
     setProcessedImage(null);
+    setAnalyticsLogId(null);
     setIsProcessing(false);
   };
 
-  const handleDownload = () => {
+  const handleDownload = async () => {
     if (processedImage) {
       const link = document.createElement('a');
       link.href = processedImage;
@@ -157,6 +161,14 @@ export default function Home() {
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
+      
+      if (analyticsLogId) {
+        try {
+          await logDownload(analyticsLogId);
+        } catch (e) {
+          console.error("Failed to log download:", e);
+        }
+      }
       
       toast({
         title: "Image saved",
