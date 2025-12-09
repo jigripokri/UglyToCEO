@@ -38,7 +38,7 @@ export default function Home() {
   const [processedImage, setProcessedImage] = useState<string | null>(null);
   const [analyticsLogId, setAnalyticsLogId] = useState<string | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
-  const [selectedModel, setSelectedModel] = useState<ModelType>("pro");
+  const [selectedModel, setSelectedModel] = useState<ModelType>("flash");
   const [selectedColor, setSelectedColor] = useState<BackgroundColor>("#562226");
   
   // Clothing state
