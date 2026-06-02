@@ -10,6 +10,8 @@ export interface LabModelInfo {
   provider: string;
   /** The OpenRouter model slug used for the request. */
   slug: string;
+  /** Rough per-image cost, for display only. */
+  approxCost: string;
 }
 
 interface LabModelDef extends LabModelInfo {}
@@ -20,36 +22,42 @@ const LAB_MODELS: LabModelDef[] = [
     displayName: "Nano Banana",
     provider: "Google · Gemini 2.5 Flash Image",
     slug: "google/gemini-2.5-flash-image",
+    approxCost: "~$0.04 / image",
   },
   {
     id: "gemini-flash-2",
     displayName: "Nano Banana 2",
     provider: "Google · Gemini 3.1 Flash Image (preview)",
     slug: "google/gemini-3.1-flash-image-preview",
+    approxCost: "~$0.04 / image",
   },
   {
     id: "gemini-pro",
     displayName: "Nano Banana Pro",
     provider: "Google · Gemini 3 Pro Image (preview)",
     slug: "google/gemini-3-pro-image-preview",
+    approxCost: "~$0.13 / image",
   },
   {
     id: "gpt-image",
     displayName: "GPT-5 Image",
     provider: "OpenAI · gpt-5-image",
     slug: "openai/gpt-5-image",
+    approxCost: "~$0.17 / image",
   },
   {
     id: "gpt-image-mini",
     displayName: "GPT-5 Image Mini",
     provider: "OpenAI · gpt-5-image-mini",
     slug: "openai/gpt-5-image-mini",
+    approxCost: "~$0.04 / image",
   },
   {
     id: "gpt-image-2",
     displayName: "GPT-5.4 Image 2",
     provider: "OpenAI · gpt-5.4-image-2",
     slug: "openai/gpt-5.4-image-2",
+    approxCost: "~$0.12 / image",
   },
 ];
 
@@ -63,6 +71,7 @@ export function listLabModels(): LabModelInfo[] {
     displayName: m.displayName,
     provider: m.provider,
     slug: m.slug,
+    approxCost: m.approxCost,
   }));
 }
 

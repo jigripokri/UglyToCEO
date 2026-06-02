@@ -6,8 +6,12 @@ import {
 
 const OPENROUTER_URL = "https://openrouter.ai/api/v1/chat/completions";
 
+function getOpenRouterKey(): string | undefined {
+  return process.env.OPENROUTER_API_KEY_U2C || process.env.OPENROUTER_API_KEY;
+}
+
 export function isOpenRouterConfigured(): boolean {
-  return !!process.env.OPENROUTER_API_KEY_U2C;
+  return !!getOpenRouterKey();
 }
 
 interface OpenRouterImage {
@@ -41,9 +45,9 @@ export async function generateHeadshotOpenRouter(
   backgroundColor: string,
   clothing: ClothingOptions,
 ): Promise<string> {
-  const apiKey = process.env.OPENROUTER_API_KEY_U2C;
+  const apiKey = getOpenRouterKey();
   if (!apiKey) {
-    throw new Error("OPENROUTER_API_KEY_U2C is not set");
+    throw new Error("OpenRouter API key is not set");
   }
 
   const { prompt } = buildHeadshotPrompt(

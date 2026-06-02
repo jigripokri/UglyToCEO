@@ -5,6 +5,7 @@ export interface LabModelInfo {
   displayName: string;
   provider: string;
   slug: string;
+  approxCost: string;
 }
 
 export interface LabSession {

@@ -292,7 +292,7 @@ export async function registerRoutes(
       if (!isLabConfigured()) {
         return res
           .status(503)
-          .json({ error: "OpenRouter is not configured. Set OPENROUTER_API_KEY_U2C." });
+          .json({ error: "OpenRouter is not configured. Set the OPENROUTER_API_KEY_U2C secret." });
       }
 
       const files = req.files as Express.Multer.File[];

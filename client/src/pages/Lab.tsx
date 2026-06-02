@@ -165,7 +165,7 @@ export default function Lab() {
           >
             <AlertTriangle className="w-4 h-4 mt-0.5 shrink-0" />
             <span>
-              OpenRouter isn't configured yet. Set the <code className="font-mono">OPENROUTER_API_KEY</code> secret to enable generation.
+              OpenRouter isn't configured yet. Set the <code className="font-mono">OPENROUTER_API_KEY_U2C</code> secret to enable generation.
             </span>
           </div>
         </div>
@@ -291,8 +291,9 @@ export default function Lab() {
                   <div>
                     <p className="font-medium text-sm" data-testid={`text-model-name-${m.id}`}>{m.displayName}</p>
                     <p className="text-xs text-neutral-500">{m.provider}</p>
+                    <p className="text-[11px] text-neutral-400 font-mono mt-0.5">{m.slug}</p>
                   </div>
-                  <span className="text-[11px] text-neutral-400 font-mono whitespace-nowrap">{m.slug}</span>
+                  <span className="text-[11px] text-neutral-500 whitespace-nowrap" data-testid={`text-cost-${m.id}`}>{m.approxCost}</span>
                 </div>
 
                 <div className="aspect-square bg-neutral-100 flex items-center justify-center relative">
