@@ -13,7 +13,7 @@ import {
 } from "@/lib/api";
 import {
   getLabSession,
-  compareLabModels,
+  generateLabModel,
   type LabModelInfo,
 } from "@/lib/labApi";
 import { Loader2, Download, Upload, RefreshCw, AlertTriangle } from "lucide-react";
@@ -102,30 +102,30 @@ export default function Lab() {
       Object.fromEntries(models.map((m) => [m.id, { status: "loading" as CardStatus }])),
     );
 
+    // Fire one request per model in parallel and update each card the moment
+    // its own model resolves, so fast models appear without waiting for slow ones.
     try {
-      const compareResults = await compareLabModels(
-        file,
-        models.map((m) => m.id),
-        backgroundColor,
-        clothing,
+      await Promise.all(
+        models.map(async (m) => {
+          try {
+            const r = await generateLabModel(file, m.id, backgroundColor, clothing);
+            setResults((prev) => ({
+              ...prev,
+              [m.id]: r.image
+                ? { status: "done", image: r.image, elapsedMs: r.elapsedMs }
+                : { status: "error", error: r.error || "Failed", elapsedMs: r.elapsedMs },
+            }));
+          } catch (err) {
+            setResults((prev) => ({
+              ...prev,
+              [m.id]: {
+                status: "error",
+                error: err instanceof Error ? err.message : "Something went wrong",
+              },
+            }));
+          }
+        }),
       );
-      setResults(
-        Object.fromEntries(
-          compareResults.map((r) => [
-            r.modelId,
-            r.image
-              ? { status: "done" as CardStatus, image: r.image, elapsedMs: r.elapsedMs }
-              : { status: "error" as CardStatus, error: r.error || "Failed", elapsedMs: r.elapsedMs },
-          ]),
-        ),
-      );
-    } catch (err) {
-      toast({
-        title: "Comparison failed",
-        description: err instanceof Error ? err.message : "Something went wrong",
-        variant: "destructive",
-      });
-      setResults({});
     } finally {
       setGenerating(false);
     }
