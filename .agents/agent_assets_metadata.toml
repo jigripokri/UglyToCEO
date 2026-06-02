@@ -1,0 +1,8 @@
+uploads = []
+generated = []
+
+[[outputs]]
+id = "djpPsl1CBBjurIB8r0pBw"
+uri = "file://README.md"
+type = "text"
+title = "Ugly to CEO — README.md"
