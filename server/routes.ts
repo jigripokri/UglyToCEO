@@ -2,6 +2,15 @@ import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { generateProfessionalHeadshot, type ModelType, type Gender, type ClothingOptions } from "./gemini-service";
+import { listLabModels, generateWithLabModel } from "./lab-models";
+import {
+  isLabConfigured,
+  verifyPassword,
+  setSessionCookie,
+  clearSessionCookie,
+  isAuthenticated,
+  requireLabAuth,
+} from "./lab-auth";
 import multer from "multer";
 import * as fs from "fs";
 import * as path from "path";
@@ -272,6 +281,112 @@ export async function registerRoutes(
     } catch (error) {
       console.error("Error serving output image:", error);
       res.status(500).json({ error: "Failed to serve image" });
+    }
+  });
+
+  // ─────────────────────────────────────────────────────────────
+  // Model Comparison Lab (password-protected, no DB logging)
+  // ─────────────────────────────────────────────────────────────
+
+  app.get("/api/lab/session", (req, res) => {
+    res.json({
+      configured: isLabConfigured(),
+      authenticated: isAuthenticated(req),
+      models: listLabModels(),
+    });
+  });
+
+  app.post("/api/lab/auth", (req, res) => {
+    if (!isLabConfigured()) {
+      return res.status(503).json({ error: "Lab is not configured. Set LAB_PASSWORD." });
+    }
+    const password = typeof req.body?.password === "string" ? req.body.password : "";
+    if (!verifyPassword(password)) {
+      return res.status(401).json({ error: "Incorrect password" });
+    }
+    setSessionCookie(res);
+    res.json({ success: true });
+  });
+
+  app.post("/api/lab/logout", (req, res) => {
+    clearSessionCookie(res);
+    res.json({ success: true });
+  });
+
+  app.post("/api/lab/generate", requireLabAuth, handleUpload, async (req, res) => {
+    const startTime = Date.now();
+    try {
+      const files = req.files as Express.Multer.File[];
+      if (!files || files.length === 0) {
+        return res.status(400).json({ error: "No image files provided" });
+      }
+      if (files.length !== 1) {
+        return res.status(400).json({ error: "Exactly one image is required" });
+      }
+
+      const modelId = typeof req.body.modelId === "string" ? req.body.modelId : "";
+      if (!modelId) {
+        return res.status(400).json({ error: "modelId is required" });
+      }
+
+      const model = listLabModels().find((m) => m.id === modelId);
+      if (!model) {
+        return res.status(400).json({ error: `Unknown model: ${modelId}` });
+      }
+      if (!model.available) {
+        return res.status(409).json({ error: `${model.displayName} is not configured` });
+      }
+
+      const referenceImages = files.map((file) => ({
+        base64: file.buffer.toString("base64"),
+        mimeType: file.mimetype || "image/jpeg",
+      }));
+
+      const requestedBgColor = req.body.backgroundColor || "#562226";
+      const backgroundColor = VALID_BACKGROUND_COLORS.includes(requestedBgColor as any)
+        ? requestedBgColor
+        : "#562226";
+
+      const requestedGender = req.body.gender || "men";
+      const gender: Gender = (requestedGender === "men" || requestedGender === "women")
+        ? requestedGender
+        : "men";
+
+      const requestedClothingId = req.body.clothingId || "blazer";
+      const clothingId = VALID_CLOTHING_IDS[gender].includes(requestedClothingId as any)
+        ? requestedClothingId
+        : "blazer";
+
+      const requestedClothingColor = req.body.clothingColor || "#4a4a4a";
+      const clothingColor = VALID_CLOTHING_COLORS.includes(requestedClothingColor as any)
+        ? requestedClothingColor
+        : "#4a4a4a";
+
+      const clothing: ClothingOptions = { gender, clothingId, clothingColor };
+
+      console.log(`🧪 [LAB] Generating with model "${modelId}" (${files.length} ref image(s))`);
+
+      const resultBase64 = await generateWithLabModel(
+        modelId,
+        referenceImages,
+        backgroundColor,
+        clothing,
+      );
+
+      res.json({
+        modelId,
+        image: `data:image/png;base64,${resultBase64}`,
+        elapsedMs: Date.now() - startTime,
+      });
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : "Unknown error";
+      console.error("🧪 [LAB] Generation error:", errorMessage);
+      res.status(500).json({
+        error: "Failed to generate image",
+        details: errorMessage,
+        modelId: req.body?.modelId,
+        elapsedMs: Date.now() - startTime,
+      });
     }
   });
 
