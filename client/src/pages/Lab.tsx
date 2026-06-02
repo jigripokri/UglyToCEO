@@ -1,6 +1,5 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
@@ -14,12 +13,10 @@ import {
 } from "@/lib/api";
 import {
   getLabSession,
-  labLogin,
-  labLogout,
-  generateLabImage,
+  compareLabModels,
   type LabModelInfo,
 } from "@/lib/labApi";
-import { Loader2, Lock, Download, Upload, RefreshCw } from "lucide-react";
+import { Loader2, Download, Upload, RefreshCw, AlertTriangle } from "lucide-react";
 
 type CardStatus = "idle" | "loading" | "done" | "error";
 
@@ -34,11 +31,7 @@ export default function Lab() {
   const { toast } = useToast();
   const [loadingSession, setLoadingSession] = useState(true);
   const [configured, setConfigured] = useState(false);
-  const [authenticated, setAuthenticated] = useState(false);
   const [models, setModels] = useState<LabModelInfo[]>([]);
-
-  const [password, setPassword] = useState("");
-  const [loggingIn, setLoggingIn] = useState(false);
 
   const [file, setFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
@@ -54,13 +47,10 @@ export default function Lab() {
   const clothingOptions = gender === "men" ? MEN_CLOTHING : WOMEN_CLOTHING;
   const activeClothing = clothingOptions.find((c) => c.id === clothingId) ?? clothingOptions[0];
 
-  const availableModels = useMemo(() => models.filter((m) => m.available), [models]);
-
   async function refreshSession() {
     try {
       const session = await getLabSession();
       setConfigured(session.configured);
-      setAuthenticated(session.authenticated);
       setModels(session.models);
     } catch {
       // ignore
@@ -96,35 +86,12 @@ export default function Lab() {
     if (item) setClothingColor(item.colors[0].hex);
   }
 
-  async function handleLogin(e: React.FormEvent) {
-    e.preventDefault();
-    setLoggingIn(true);
-    try {
-      await labLogin(password);
-      setPassword("");
-      await refreshSession();
-    } catch (err) {
-      toast({
-        title: "Access denied",
-        description: err instanceof Error ? err.message : "Login failed",
-        variant: "destructive",
-      });
-    } finally {
-      setLoggingIn(false);
-    }
-  }
-
-  async function handleLogout() {
-    await labLogout();
-    await refreshSession();
-  }
-
   async function handleGenerate() {
     if (!file) {
       toast({ title: "Add a photo first", variant: "destructive" });
       return;
     }
-    if (availableModels.length === 0) {
+    if (models.length === 0) {
       toast({ title: "No models available", variant: "destructive" });
       return;
     }
@@ -132,30 +99,36 @@ export default function Lab() {
     setGenerating(true);
     const clothing: ClothingSelection = { gender, clothingId, clothingColor };
     setResults(
-      Object.fromEntries(availableModels.map((m) => [m.id, { status: "loading" as CardStatus }])),
+      Object.fromEntries(models.map((m) => [m.id, { status: "loading" as CardStatus }])),
     );
 
-    await Promise.all(
-      availableModels.map(async (m) => {
-        try {
-          const res = await generateLabImage(file, m.id, backgroundColor, clothing);
-          setResults((prev) => ({
-            ...prev,
-            [m.id]: { status: "done", image: res.image, elapsedMs: res.elapsedMs },
-          }));
-        } catch (err) {
-          setResults((prev) => ({
-            ...prev,
-            [m.id]: {
-              status: "error",
-              error: err instanceof Error ? err.message : "Failed",
-            },
-          }));
-        }
-      }),
-    );
-
-    setGenerating(false);
+    try {
+      const compareResults = await compareLabModels(
+        file,
+        models.map((m) => m.id),
+        backgroundColor,
+        clothing,
+      );
+      setResults(
+        Object.fromEntries(
+          compareResults.map((r) => [
+            r.modelId,
+            r.image
+              ? { status: "done" as CardStatus, image: r.image, elapsedMs: r.elapsedMs }
+              : { status: "error" as CardStatus, error: r.error || "Failed", elapsedMs: r.elapsedMs },
+          ]),
+        ),
+      );
+    } catch (err) {
+      toast({
+        title: "Comparison failed",
+        description: err instanceof Error ? err.message : "Something went wrong",
+        variant: "destructive",
+      });
+      setResults({});
+    } finally {
+      setGenerating(false);
+    }
   }
 
   function downloadImage(modelId: string, image: string) {
@@ -174,61 +147,29 @@ export default function Lab() {
     );
   }
 
-  // ── Password gate ────────────────────────────────────────
-  if (!authenticated) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-neutral-50 px-4">
-        <Card className="w-full max-w-sm p-8">
-          <div className="flex flex-col items-center text-center mb-6">
-            <div className="w-12 h-12 rounded-full bg-neutral-900 flex items-center justify-center mb-4">
-              <Lock className="w-5 h-5 text-white" />
-            </div>
-            <h1 className="text-xl font-semibold" data-testid="text-lab-title">Model Comparison Lab</h1>
-            <p className="text-sm text-neutral-500 mt-1">Enter the password to continue.</p>
-          </div>
-
-          {!configured ? (
-            <p className="text-sm text-amber-600 text-center" data-testid="text-lab-not-configured">
-              The lab is not configured yet. A LAB_PASSWORD must be set.
-            </p>
-          ) : (
-            <form onSubmit={handleLogin} className="space-y-4">
-              <div>
-                <Label htmlFor="lab-password" className="sr-only">Password</Label>
-                <Input
-                  id="lab-password"
-                  type="password"
-                  placeholder="Password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  data-testid="input-lab-password"
-                  autoFocus
-                />
-              </div>
-              <Button type="submit" className="w-full" disabled={loggingIn} data-testid="button-lab-login">
-                {loggingIn ? <Loader2 className="w-4 h-4 animate-spin" /> : "Unlock"}
-              </Button>
-            </form>
-          )}
-        </Card>
-      </div>
-    );
-  }
-
   // ── Lab tool ─────────────────────────────────────────────
   return (
     <div className="min-h-screen bg-neutral-50">
       <header className="border-b bg-white">
-        <div className="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between">
-          <div>
-            <h1 className="text-lg font-semibold" data-testid="text-lab-header">Model Comparison Lab</h1>
-            <p className="text-xs text-neutral-500">One photo, every model, side by side.</p>
-          </div>
-          <Button variant="ghost" size="sm" onClick={handleLogout} data-testid="button-lab-logout">
-            Log out
-          </Button>
+        <div className="max-w-6xl mx-auto px-4 py-4">
+          <h1 className="text-lg font-semibold" data-testid="text-lab-header">Model Comparison Lab</h1>
+          <p className="text-xs text-neutral-500">One photo, every model, side by side.</p>
         </div>
       </header>
+
+      {!configured && (
+        <div className="max-w-6xl mx-auto px-4 pt-4">
+          <div
+            className="flex items-start gap-2 rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-700"
+            data-testid="text-lab-not-configured"
+          >
+            <AlertTriangle className="w-4 h-4 mt-0.5 shrink-0" />
+            <span>
+              OpenRouter isn't configured yet. Set the <code className="font-mono">OPENROUTER_API_KEY</code> secret to enable generation.
+            </span>
+          </div>
+        </div>
+      )}
 
       <main className="max-w-6xl mx-auto px-4 py-6 grid lg:grid-cols-[320px_1fr] gap-6">
         {/* Controls */}
@@ -329,13 +270,13 @@ export default function Lab() {
           <Button
             className="w-full"
             onClick={handleGenerate}
-            disabled={generating || !file || availableModels.length === 0}
+            disabled={generating || !file || !configured || models.length === 0}
             data-testid="button-lab-generate"
           >
             {generating ? (
               <><Loader2 className="w-4 h-4 animate-spin mr-2" /> Generating…</>
             ) : (
-              <><RefreshCw className="w-4 h-4 mr-2" /> Generate across {availableModels.length} model{availableModels.length === 1 ? "" : "s"}</>
+              <><RefreshCw className="w-4 h-4 mr-2" /> Generate across {models.length} model{models.length === 1 ? "" : "s"}</>
             )}
           </Button>
         </Card>
@@ -350,21 +291,12 @@ export default function Lab() {
                   <div>
                     <p className="font-medium text-sm" data-testid={`text-model-name-${m.id}`}>{m.displayName}</p>
                     <p className="text-xs text-neutral-500">{m.provider}</p>
-                    {!m.usesPhoto && (
-                      <p className="text-[11px] text-amber-600 mt-0.5" data-testid={`text-textonly-${m.id}`}>
-                        Text-only · won't preserve your face
-                      </p>
-                    )}
                   </div>
-                  <span className="text-[11px] text-neutral-400 whitespace-nowrap">{m.approxCost}</span>
+                  <span className="text-[11px] text-neutral-400 font-mono whitespace-nowrap">{m.slug}</span>
                 </div>
 
                 <div className="aspect-square bg-neutral-100 flex items-center justify-center relative">
-                  {!m.available ? (
-                    <span className="text-xs text-neutral-400 px-4 text-center" data-testid={`text-unavailable-${m.id}`}>
-                      Not configured
-                    </span>
-                  ) : !r || r.status === "idle" ? (
+                  {!r || r.status === "idle" ? (
                     <span className="text-xs text-neutral-400">Ready</span>
                   ) : r.status === "loading" ? (
                     <Loader2 className="w-6 h-6 animate-spin text-neutral-400" data-testid={`loader-${m.id}`} />

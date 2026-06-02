@@ -1,3 +1,1 @@
-# Memory Index
-
-- [Dev server has no file watch](dev-server-no-watch.md) — server (tsx) needs a manual workflow restart; only the Vite client hot-reloads.
+- [OpenRouter image-generation catalog](openrouter-image-models.md) — confirm image slugs against the live catalog (FLUX/Seedream/Grok aren't served there); how to shape image gen request/response.

@@ -99,6 +99,17 @@ Preferred communication style: Simple, everyday language.
 - Tests images in `eval-images/` directory against all background colors and both models
 - Stores results in database for dashboard viewing
 
+### Model Comparison Lab
+
+**Lab Page** (`/lab`):
+- Open (no password) tool to compare image models side-by-side on a single uploaded photo.
+- All models are accessed through a single **OpenRouter** account (`OPENROUTER_API_KEY`), kept fully separate from the public `/api/transform` flow (no DB logging).
+- Endpoint `POST /api/lab/compare` accepts one image plus optional `modelIds`, fans out to every selected model in parallel, and returns each model's image or per-model error independently.
+- `GET /api/lab/session` reports whether OpenRouter is configured and lists available models.
+- Model registry lives in `server/lab-models.ts`; OpenRouter request/response handling in `server/openrouter-service.ts`. Shared prompt builder in `server/headshot-prompt.ts`.
+- Current models (confirmed against OpenRouter's live image catalog): Nano Banana (`google/gemini-2.5-flash-image`), Nano Banana 2 (`google/gemini-3.1-flash-image-preview`), Nano Banana Pro (`google/gemini-3-pro-image-preview`), GPT-5 Image (`openai/gpt-5-image`), GPT-5 Image Mini (`openai/gpt-5-image-mini`), GPT-5.4 Image 2 (`openai/gpt-5.4-image-2`).
+- Note: FLUX/Seedream/Grok image models are not currently served through OpenRouter's image API, so they are not included.
+
 ### Build System
 
 **Development**:
