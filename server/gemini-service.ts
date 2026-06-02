@@ -132,11 +132,13 @@ Transform this into a professional, high-resolution profile photo, maintaining t
     }
 
     const candidate = response.candidates[0];
-    console.log("📄 Parts in response:", candidate.content?.parts?.length || 0);
+    console.log("📄 finishReason:", candidate.finishReason ?? "none");
+    console.log("📄 Parts in response:", candidate.content?.parts?.length ?? "no content");
 
     if (!candidate.content || !candidate.content.parts) {
-      console.log("❌ Invalid response format");
-      throw new Error("Invalid response format");
+      console.log("❌ No content/parts — finishReason:", candidate.finishReason);
+      console.log("❌ Full candidate:", JSON.stringify(candidate, null, 2));
+      throw new Error(`No image content returned (finishReason: ${candidate.finishReason ?? "unknown"})`);
     }
 
     for (const part of candidate.content.parts) {
