@@ -6,6 +6,10 @@ import {
 
 const OPENROUTER_URL = "https://openrouter.ai/api/v1/chat/completions";
 
+/** Abort a single model request if it hasn't responded in time, so one
+ *  hanging model can't block the whole side-by-side comparison. */
+const REQUEST_TIMEOUT_MS = 90_000;
+
 function getOpenRouterKey(): string | undefined {
   return process.env.OPENROUTER_API_KEY_U2C || process.env.OPENROUTER_API_KEY;
 }
@@ -71,20 +75,39 @@ export async function generateHeadshotOpenRouter(
   const startTime = Date.now();
   console.log(`🧪 [OpenRouter] → ${modelSlug} (${referenceImages.length} ref image(s))`);
 
-  const response = await fetch(OPENROUTER_URL, {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${apiKey}`,
-      "Content-Type": "application/json",
-      "HTTP-Referer": "https://uglytoceo.replit.app",
-      "X-Title": "Ugly to CEO - Model Comparison Lab",
-    },
-    body: JSON.stringify({
-      model: modelSlug,
-      modalities: ["image", "text"],
-      messages: [{ role: "user", content }],
-    }),
-  });
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS);
+
+  let response: Response;
+  try {
+    response = await fetch(OPENROUTER_URL, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${apiKey}`,
+        "Content-Type": "application/json",
+        "HTTP-Referer": "https://uglytoceo.replit.app",
+        "X-Title": "Ugly to CEO - Model Comparison Lab",
+      },
+      body: JSON.stringify({
+        model: modelSlug,
+        modalities: ["image", "text"],
+        messages: [{ role: "user", content }],
+      }),
+      signal: controller.signal,
+    });
+  } catch (err) {
+    const elapsed = Date.now() - startTime;
+    const aborted = err instanceof Error && err.name === "AbortError";
+    const message = aborted
+      ? `Timed out after ${Math.round(REQUEST_TIMEOUT_MS / 1000)}s`
+      : err instanceof Error
+        ? err.message
+        : "Request failed";
+    console.log(`🧪 [OpenRouter] ✗ ${modelSlug} (${elapsed}ms): ${message}`);
+    throw new Error(message);
+  } finally {
+    clearTimeout(timeout);
+  }
 
   const elapsed = Date.now() - startTime;
 

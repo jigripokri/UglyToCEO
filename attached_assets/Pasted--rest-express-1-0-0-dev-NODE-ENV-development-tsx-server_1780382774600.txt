@@ -1,0 +1,34 @@
+> rest-express@1.0.0 dev
+> NODE_ENV=development tsx server/index.ts
+
+6:38:42 AM [express] serving on port 5000
+[baseline-browser-mapping] The data in this module is over two months old.  To ensure accurate Baseline data, please update: `npm i baseline-browser-mapping@latest -D`
+6:38:49 AM [express] GET /api/lab/session 200 in 2ms :: {"configured":true,"models":[{"id":"gemini-flash","displayName":"Nano Banana","provider":"Google · Gemini 2.5 Flash Image","slug":"google/gemini-2.5-flash-image","approxCost":"~$0.04 / image"},{"id":"gemini-flash-2","displayName":"Nano Banana 2","provider":"Google · Gemini 3.1 Flash Image (preview)","slug":"google/gemini-3.1-flash-image-preview","approxCost":"~$0.04 / image"},{"id":"gemini-pro","displayName":"Nano Banana Pro","provider":"Google · Gemini 3 Pro Image (preview)","slug":"google/gemini-3-pro-image-preview","approxCost":"~$0.13 / image"},{"id":"gpt-image","displayName":"GPT-5 Image","provider":"OpenAI · gpt-5-image","slug":"openai/gpt-5-image","approxCost":"~$0.17 / image"},{"id":"gpt-image-mini","displayName":"GPT-5 Image Mini","provider":"OpenAI · gpt-5-image-mini","slug":"openai/gpt-5-image-mini","approxCost":"~$0.04 / image"},{"id":"gpt-image-2","displayName":"GPT-5.4 Image 2","provider":"OpenAI · gpt-5.4-image-2","slug":"openai/gpt-5.4-image-2","approxCost":"~$0.12 / image"}]}
+6:38:53 AM [express] GET /api/lab/session 200 in 1ms :: {"configured":true,"models":[{"id":"gemini-flash","displayName":"Nano Banana","provider":"Google · Gemini 2.5 Flash Image","slug":"google/gemini-2.5-flash-image","approxCost":"~$0.04 / image"},{"id":"gemini-flash-2","displayName":"Nano Banana 2","provider":"Google · Gemini 3.1 Flash Image (preview)","slug":"google/gemini-3.1-flash-image-preview","approxCost":"~$0.04 / image"},{"id":"gemini-pro","displayName":"Nano Banana Pro","provider":"Google · Gemini 3 Pro Image (preview)","slug":"google/gemini-3-pro-image-preview","approxCost":"~$0.13 / image"},{"id":"gpt-image","displayName":"GPT-5 Image","provider":"OpenAI · gpt-5-image","slug":"openai/gpt-5-image","approxCost":"~$0.17 / image"},{"id":"gpt-image-mini","displayName":"GPT-5 Image Mini","provider":"OpenAI · gpt-5-image-mini","slug":"openai/gpt-5-image-mini","approxCost":"~$0.04 / image"},{"id":"gpt-image-2","displayName":"GPT-5.4 Image 2","provider":"OpenAI · gpt-5.4-image-2","slug":"openai/gpt-5.4-image-2","approxCost":"~$0.12 / image"}]}
+6:43:24 AM [express] GET /api/lab/session 200 in 0ms :: {"configured":true,"models":[{"id":"gemini-flash","displayName":"Nano Banana","provider":"Google · Gemini 2.5 Flash Image","slug":"google/gemini-2.5-flash-image","approxCost":"~$0.04 / image"},{"id":"gemini-flash-2","displayName":"Nano Banana 2","provider":"Google · Gemini 3.1 Flash Image (preview)","slug":"google/gemini-3.1-flash-image-preview","approxCost":"~$0.04 / image"},{"id":"gemini-pro","displayName":"Nano Banana Pro","provider":"Google · Gemini 3 Pro Image (preview)","slug":"google/gemini-3-pro-image-preview","approxCost":"~$0.13 / image"},{"id":"gpt-image","displayName":"GPT-5 Image","provider":"OpenAI · gpt-5-image","slug":"openai/gpt-5-image","approxCost":"~$0.17 / image"},{"id":"gpt-image-mini","displayName":"GPT-5 Image Mini","provider":"OpenAI · gpt-5-image-mini","slug":"openai/gpt-5-image-mini","approxCost":"~$0.04 / image"},{"id":"gpt-image-2","displayName":"GPT-5.4 Image 2","provider":"OpenAI · gpt-5.4-image-2","slug":"openai/gpt-5.4-image-2","approxCost":"~$0.12 / image"}]}
+🧪 [LAB] Comparing 6 model(s): gemini-flash, gemini-flash-2, gemini-pro, gpt-image, gpt-image-mini, gpt-image-2
+🧪 [OpenRouter] → google/gemini-2.5-flash-image (1 ref image(s))
+🧪 [OpenRouter] → google/gemini-3.1-flash-image-preview (1 ref image(s))
+🧪 [OpenRouter] → google/gemini-3-pro-image-preview (1 ref image(s))
+🧪 [OpenRouter] → openai/gpt-5-image (1 ref image(s))
+🧪 [OpenRouter] → openai/gpt-5-image-mini (1 ref image(s))
+🧪 [OpenRouter] → openai/gpt-5.4-image-2 (1 ref image(s))
+🧪 [OpenRouter] ✓ google/gemini-2.5-flash-image (7569ms)
+🧪 [OpenRouter] ✓ google/gemini-3.1-flash-image-preview (11015ms)
+🧪 [OpenRouter] ✓ google/gemini-3-pro-image-preview (6653ms)
+6:44:38 AM [express] GET /api/lab/session 200 in 1ms :: {"configured":true,"models":[{"id":"gemini-flash","displayName":"Nano Banana","provider":"Google · Gemini 2.5 Flash Image","slug":"google/gemini-2.5-flash-image","approxCost":"~$0.04 / image"},{"id":"gemini-flash-2","displayName":"Nano Banana 2","provider":"Google · Gemini 3.1 Flash Image (preview)","slug":"google/gemini-3.1-flash-image-preview","approxCost":"~$0.04 / image"},{"id":"gemini-pro","displayName":"Nano Banana Pro","provider":"Google · Gemini 3 Pro Image (preview)","slug":"google/gemini-3-pro-image-preview","approxCost":"~$0.13 / image"},{"id":"gpt-image","displayName":"GPT-5 Image","provider":"OpenAI · gpt-5-image","slug":"openai/gpt-5-image","approxCost":"~$0.17 / image"},{"id":"gpt-image-mini","displayName":"GPT-5 Image Mini","provider":"OpenAI · gpt-5-image-mini","slug":"openai/gpt-5-image-mini","approxCost":"~$0.04 / image"},{"id":"gpt-image-2","displayName":"GPT-5.4 Image 2","provider":"OpenAI · gpt-5.4-image-2","slug":"openai/gpt-5.4-image-2","approxCost":"~$0.12 / image"}]}
+🧪 [OpenRouter] ✓ openai/gpt-5-image-mini (1110ms)
+🧪 [OpenRouter] ✓ openai/gpt-5-image (1918ms)
+🧪 [LAB] Comparing 6 model(s): gemini-flash, gemini-flash-2, gemini-pro, gpt-image, gpt-image-mini, gpt-image-2
+🧪 [OpenRouter] → google/gemini-2.5-flash-image (1 ref image(s))
+🧪 [OpenRouter] → google/gemini-3.1-flash-image-preview (1 ref image(s))
+🧪 [OpenRouter] → google/gemini-3-pro-image-preview (1 ref image(s))
+🧪 [OpenRouter] → openai/gpt-5-image (1 ref image(s))
+🧪 [OpenRouter] → openai/gpt-5-image-mini (1 ref image(s))
+🧪 [OpenRouter] → openai/gpt-5.4-image-2 (1 ref image(s))
+🧪 [OpenRouter] ✓ google/gemini-2.5-flash-image (7574ms)
+🧪 [OpenRouter] ✓ google/gemini-3.1-flash-image-preview (9785ms)
+🧪 [OpenRouter] ✓ google/gemini-3-pro-image-preview (4014ms)
+🧪 [OpenRouter] ✓ openai/gpt-5-image-mini (952ms)
+^A
+

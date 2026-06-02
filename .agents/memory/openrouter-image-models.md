@@ -17,3 +17,8 @@ description: Which image models OpenRouter actually serves, and how image genera
 - Body: `{ model: <slug>, modalities: ["image","text"], messages: [{ role:"user", content: [{type:"text",text:prompt}, {type:"image_url", image_url:{url:"data:<mime>;base64,<b64>"}}] }] }`.
 - Output image is at `choices[0].message.images[0].image_url.url` as a `data:` URL — strip the prefix to get raw base64.
 - If the model returns only text (no image), surface `message.content` as the error so the user sees why.
+
+**Hanging models / fan-out resilience:**
+- A model slug being present in OpenRouter's catalog does NOT mean it returns an image. Some accept the request and hang indefinitely with no response and no error (observed with `openai/gpt-5.4-image-2`).
+- Every per-model fetch MUST have an AbortController timeout. Without one, a single hanging model blocks `Promise.all` forever, so a batched (single-response) fan-out leaves the whole UI stuck "loading" — symptom looks like "images not loading" even though other models succeeded.
+- A timeout alone isn't enough UX-wise for a consistently-hanging model in a batched response: the user still waits the full timeout every run. Drop confirmed-broken slugs from the registry and keep the timeout only as a safety net.

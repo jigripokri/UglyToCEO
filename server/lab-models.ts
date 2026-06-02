@@ -52,13 +52,6 @@ const LAB_MODELS: LabModelDef[] = [
     slug: "openai/gpt-5-image-mini",
     approxCost: "~$0.04 / image",
   },
-  {
-    id: "gpt-image-2",
-    displayName: "GPT-5.4 Image 2",
-    provider: "OpenAI · gpt-5.4-image-2",
-    slug: "openai/gpt-5.4-image-2",
-    approxCost: "~$0.12 / image",
-  },
 ];
 
 export function isLabConfigured(): boolean {

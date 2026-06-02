@@ -107,8 +107,9 @@ Preferred communication style: Simple, everyday language.
 - Endpoint `POST /api/lab/compare` accepts one image plus optional `modelIds`, fans out to every selected model in parallel, and returns each model's image or per-model error independently.
 - `GET /api/lab/session` reports whether OpenRouter is configured and lists available models.
 - Model registry lives in `server/lab-models.ts`; OpenRouter request/response handling in `server/openrouter-service.ts`. Shared prompt builder in `server/headshot-prompt.ts`.
-- Current models (confirmed against OpenRouter's live image catalog): Nano Banana (`google/gemini-2.5-flash-image`), Nano Banana 2 (`google/gemini-3.1-flash-image-preview`), Nano Banana Pro (`google/gemini-3-pro-image-preview`), GPT-5 Image (`openai/gpt-5-image`), GPT-5 Image Mini (`openai/gpt-5-image-mini`), GPT-5.4 Image 2 (`openai/gpt-5.4-image-2`).
-- Note: FLUX/Seedream/Grok image models are not currently served through OpenRouter's image API, so they are not included.
+- Current models (confirmed working against OpenRouter's live image catalog): Nano Banana (`google/gemini-2.5-flash-image`), Nano Banana 2 (`google/gemini-3.1-flash-image-preview`), Nano Banana Pro (`google/gemini-3-pro-image-preview`), GPT-5 Image (`openai/gpt-5-image`), GPT-5 Image Mini (`openai/gpt-5-image-mini`).
+- Each model request is bounded by a 90s timeout (AbortController) so one slow/hanging model can't block the whole side-by-side comparison.
+- Note: FLUX/Seedream/Grok image models are not currently served through OpenRouter's image API. `openai/gpt-5.4-image-2` was removed because it accepts the request but never returns an image (hangs), which stalled every comparison.
 
 ### Build System
 
