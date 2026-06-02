@@ -350,6 +350,11 @@ export default function Lab() {
                   <div>
                     <p className="font-medium text-sm" data-testid={`text-model-name-${m.id}`}>{m.displayName}</p>
                     <p className="text-xs text-neutral-500">{m.provider}</p>
+                    {!m.usesPhoto && (
+                      <p className="text-[11px] text-amber-600 mt-0.5" data-testid={`text-textonly-${m.id}`}>
+                        Text-only · won't preserve your face
+                      </p>
+                    )}
                   </div>
                   <span className="text-[11px] text-neutral-400 whitespace-nowrap">{m.approxCost}</span>
                 </div>

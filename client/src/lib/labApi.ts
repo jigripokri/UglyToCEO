@@ -6,6 +6,7 @@ export interface LabModelInfo {
   provider: string;
   approxCost: string;
   note?: string;
+  usesPhoto: boolean;
   available: boolean;
 }
 
