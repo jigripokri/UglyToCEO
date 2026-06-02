@@ -7,7 +7,7 @@ import {
 const OPENROUTER_URL = "https://openrouter.ai/api/v1/chat/completions";
 
 export function isOpenRouterConfigured(): boolean {
-  return !!process.env.OPENROUTER_API_KEY;
+  return !!process.env.OPENROUTER_API_KEY_U2C;
 }
 
 interface OpenRouterImage {
@@ -41,9 +41,9 @@ export async function generateHeadshotOpenRouter(
   backgroundColor: string,
   clothing: ClothingOptions,
 ): Promise<string> {
-  const apiKey = process.env.OPENROUTER_API_KEY;
+  const apiKey = process.env.OPENROUTER_API_KEY_U2C;
   if (!apiKey) {
-    throw new Error("OPENROUTER_API_KEY is not set");
+    throw new Error("OPENROUTER_API_KEY_U2C is not set");
   }
 
   const { prompt } = buildHeadshotPrompt(
@@ -73,7 +73,7 @@ export async function generateHeadshotOpenRouter(
       Authorization: `Bearer ${apiKey}`,
       "Content-Type": "application/json",
       "HTTP-Referer": "https://uglytoceo.replit.app",
-      "X-Title": "Ugly to CEO — Model Comparison Lab",
+      "X-Title": "Ugly to CEO - Model Comparison Lab",
     },
     body: JSON.stringify({
       model: modelSlug,

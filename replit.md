@@ -103,7 +103,7 @@ Preferred communication style: Simple, everyday language.
 
 **Lab Page** (`/lab`):
 - Open (no password) tool to compare image models side-by-side on a single uploaded photo.
-- All models are accessed through a single **OpenRouter** account (`OPENROUTER_API_KEY`), kept fully separate from the public `/api/transform` flow (no DB logging).
+- All models are accessed through a single **OpenRouter** account (`OPENROUTER_API_KEY_U2C`), kept fully separate from the public `/api/transform` flow (no DB logging).
 - Endpoint `POST /api/lab/compare` accepts one image plus optional `modelIds`, fans out to every selected model in parallel, and returns each model's image or per-model error independently.
 - `GET /api/lab/session` reports whether OpenRouter is configured and lists available models.
 - Model registry lives in `server/lab-models.ts`; OpenRouter request/response handling in `server/openrouter-service.ts`. Shared prompt builder in `server/headshot-prompt.ts`.

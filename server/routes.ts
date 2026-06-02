@@ -292,7 +292,7 @@ export async function registerRoutes(
       if (!isLabConfigured()) {
         return res
           .status(503)
-          .json({ error: "OpenRouter is not configured. Set OPENROUTER_API_KEY." });
+          .json({ error: "OpenRouter is not configured. Set OPENROUTER_API_KEY_U2C." });
       }
 
       const files = req.files as Express.Multer.File[];
@@ -321,7 +321,9 @@ export async function registerRoutes(
         requestedIds = allModels.map((m) => m.id);
       }
 
-      const modelIds = [...new Set(requestedIds.filter((id) => knownIds.has(id)))];
+      const modelIds = requestedIds.filter(
+        (id, i) => knownIds.has(id) && requestedIds.indexOf(id) === i,
+      );
       if (modelIds.length === 0) {
         return res.status(400).json({ error: "No valid models requested" });
       }
