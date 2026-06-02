@@ -113,6 +113,9 @@ Transform this into a professional, high-resolution profile photo, maintaining t
           parts: parts,
         },
       ],
+      config: {
+        responseModalities: ["TEXT", "IMAGE"],
+      },
     });
 
     const elapsed = Date.now() - startTime;
