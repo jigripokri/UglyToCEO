@@ -185,8 +185,7 @@ async function runEvaluation() {
         };
 
         const generatedBase64 = await generateProfessionalHeadshot(
-          originalBase64,
-          mimeType,
+          [{ base64: originalBase64, mimeType }],
           model,
           BACKGROUND_COLOR,
           clothing

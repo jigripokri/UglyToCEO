@@ -15,6 +15,24 @@ const upload = multer({
 
 const uploadMultiple = upload.array("images", 4);
 
+function handleUpload(req: any, res: any, next: any) {
+  uploadMultiple(req, res, (err: any) => {
+    if (err) {
+      if (err instanceof multer.MulterError) {
+        if (err.code === "LIMIT_FILE_SIZE") {
+          return res.status(400).json({ error: "Each image must be 10MB or smaller" });
+        }
+        if (err.code === "LIMIT_UNEXPECTED_FILE") {
+          return res.status(400).json({ error: "Maximum 4 images allowed" });
+        }
+        return res.status(400).json({ error: err.message });
+      }
+      return res.status(400).json({ error: "Failed to process upload" });
+    }
+    next();
+  });
+}
+
 const VALID_BACKGROUND_COLORS = [
   "#562226", // Deep Burgundy
   "#1a2744", // Navy Blue
@@ -47,9 +65,11 @@ export async function registerRoutes(
   app: Express
 ): Promise<Server> {
   
-  app.post("/api/transform", uploadMultiple, async (req, res) => {
+  app.post("/api/transform", handleUpload, async (req, res) => {
     const startTime = Date.now();
     let analyticsLogId: string | null = null;
+    let modelType: ModelType = "flash";
+    let backgroundColor = "#562226";
     
     try {
       const files = req.files as Express.Multer.File[];
@@ -67,10 +87,13 @@ export async function registerRoutes(
         mimeType: file.mimetype || "image/jpeg",
       }));
       
-      const modelType = (req.body.model as ModelType) || "flash";
+      const requestedModel = req.body.model;
+      modelType = (requestedModel === "flash" || requestedModel === "pro")
+        ? requestedModel
+        : "flash";
       
       const requestedBgColor = req.body.backgroundColor || "#562226";
-      const backgroundColor = VALID_BACKGROUND_COLORS.includes(requestedBgColor as any) 
+      backgroundColor = VALID_BACKGROUND_COLORS.includes(requestedBgColor as any) 
         ? requestedBgColor 
         : "#562226";
       
@@ -143,8 +166,8 @@ export async function registerRoutes(
       
       try {
         await storage.logAnalytics({
-          modelUsed: (req.body?.model as ModelType) || "flash",
-          backgroundColor: req.body?.backgroundColor || "#562226",
+          modelUsed: modelType,
+          backgroundColor,
           success: false,
           processingTimeMs,
           inputSizeBytes: files?.reduce((sum, f) => sum + f.buffer.length, 0) || null,
@@ -213,10 +236,11 @@ export async function registerRoutes(
 
   app.get("/api/evals/input-image/:filename", async (req, res) => {
     try {
-      const filename = req.params.filename;
-      const imagePath = path.join(process.cwd(), "eval-images", filename);
+      const filename = path.basename(req.params.filename);
+      const baseDir = path.join(process.cwd(), "eval-images");
+      const imagePath = path.join(baseDir, filename);
       
-      if (!fs.existsSync(imagePath)) {
+      if (path.dirname(imagePath) !== baseDir || !fs.existsSync(imagePath)) {
         return res.status(404).json({ error: "Image not found" });
       }
       
@@ -234,10 +258,11 @@ export async function registerRoutes(
 
   app.get("/api/evals/output-image/:filename", async (req, res) => {
     try {
-      const filename = req.params.filename;
-      const imagePath = path.join(process.cwd(), "eval-outputs", filename);
+      const filename = path.basename(req.params.filename);
+      const baseDir = path.join(process.cwd(), "eval-outputs");
+      const imagePath = path.join(baseDir, filename);
       
-      if (!fs.existsSync(imagePath)) {
+      if (path.dirname(imagePath) !== baseDir || !fs.existsSync(imagePath)) {
         return res.status(404).json({ error: "Image not found" });
       }
       

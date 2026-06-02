@@ -153,6 +153,7 @@ export default function Analytics() {
                             innerRadius={60}
                             outerRadius={100}
                             dataKey="value"
+                            isAnimationActive={false}
                             label={({ name, value }) => `${name}: ${value}`}
                           >
                             {modelData.map((entry, index) => (
