@@ -6,5 +6,9 @@ vite.config.ts.*
 *.tar.gz
 .env
 .env.*
+!.env.example
 *.pem
 *.key
+
+# Claude Code local settings
+.claude/settings.local.json
